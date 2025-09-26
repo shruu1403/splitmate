@@ -1,0 +1,185 @@
+/* src/styles/friends.module.css */
+
+.layout {
+  display: flex;
+  height: 100%;
+  background: #fff;
+}
+
+/* Sidebar section inside Friends page (if any) */
+.sidebar {
+  width: 250px;
+  border-right: 1px solid #ddd;
+  padding: 1rem;
+  background: #fafafa;
+}
+
+.friendList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.friendItem {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.friendItem:hover {
+  background: #f2f2f2;
+}
+
+.activeFriend {
+  background: #e6f7ff;
+  font-weight: 600;
+}
+
+/* Main content */
+.mainContent {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.actionBtns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionBtns button {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.addExpenseBtn {
+  background: #ff7043;
+  color: white;
+}
+
+.addExpenseBtn:hover {
+  background: #f4511e;
+}
+
+.settleBtn {
+  background: #4caf50;
+  color: white;
+}
+
+.settleBtn:hover {
+  background: #388e3c;
+}
+
+/* Balances */
+.balances {
+  margin-bottom: 1.5rem;
+}
+
+.balanceItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.green {
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.red {
+  color: #c62828;
+  font-weight: 500;
+}
+
+/* Expenses */
+.expensesSection {
+  margin-top: 1rem;
+}
+
+.expenseList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.expenseItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.7rem 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.expenseLeft {
+  display: flex;
+  flex-direction: column;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.expenseRight {
+  text-align: right;
+  font-weight: 500;
+}
+
+.settledState {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem;
+  background: #f1f8f6;
+  border-radius: 8px;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.checkmark {
+  color: #2e7d32;
+  font-size: 1.3rem;
+}
+
+.settledExpenses {
+  margin-top: 1rem;
+}
+
+.settledExpenses h4 {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.link {
+  margin-left: 0.5rem;
+  color: #1976d2;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

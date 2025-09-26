@@ -1,0 +1,14 @@
+.content {
+  margin-left: 220px; /* sidebar space */
+  padding: 1.5rem;
+  flex: 1;
+  background: #f9fafb;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .content {
+    margin-left: 0; /* full width when sidebar hidden */
+    padding: 1rem;
+  }
+}

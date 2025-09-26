@@ -1,0 +1,58 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1d4ed8;
+  color: white;
+  padding: 0.75rem 1.5rem;
+}
+
+.logo {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.username {
+  font-size: 0.95rem;
+}
+
+.logoutBtn {
+  background: #dc2626;
+  border: none;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.logoutBtn:hover {
+  background: #b91c1c;
+}
+/* Navbar.module.css extra */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+  }
+
+  .logo {
+    font-size: 1rem;
+  }
+
+  .username {
+    font-size: 0.85rem;
+  }
+
+  .logoutBtn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+}

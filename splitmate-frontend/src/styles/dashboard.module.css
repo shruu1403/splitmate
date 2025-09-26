@@ -1,0 +1,60 @@
+.container {
+  padding: 20px;
+}
+
+.heading {
+  margin-bottom: 20px;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.summaryRow div {
+  flex: 1;
+}
+
+.oweContainer {
+  display: flex;
+  gap: 20px;
+}
+
+.oweSection {
+  flex: 1;
+  background: #fff;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.personRow {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+
+.positive {
+  color: green;
+  font-weight: bold;
+}
+
+.negative {
+  color: red;
+  font-weight: bold;
+}
+
+.center {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.error {
+  color: red;
+  text-align: center;
+}

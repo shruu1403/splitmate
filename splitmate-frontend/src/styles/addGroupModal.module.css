@@ -1,0 +1,186 @@
+/* Modal container */
+/* Dark background overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: #fff;
+  width: 420px;
+  max-width: 95%;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.25s ease-in-out;
+  margin: 0 auto;
+  z-index: 2100;
+  position: relative;
+}
+
+/* Form layout */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.form h3 {
+  margin: 10px 0 4px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Labels */
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95rem;
+  color: #333;
+  gap: 4px;
+}
+
+/* Input fields */
+input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4cafef;
+  box-shadow: 0 0 4px rgba(76, 175, 239, 0.4);
+}
+
+/* Each member row */
+.memberRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.memberRow input {
+  flex: 1;
+}
+
+.memberRow button {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+
+.memberRow button:hover {
+  color: #e74c3c;
+}
+
+/* Suggestions dropdown */
+.suggestions {
+  position: absolute;
+  top: 100%; /* appears right below input */
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 2200; /* Always on top */
+}
+.suggestions div {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.suggestions div:hover {
+  background: #f5f5f5;
+}
+
+/* Add person button */
+.form > button[type="button"] {
+  align-self: flex-start;
+  padding: 6px 10px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form > button[type="button"]:hover {
+  background: #e2e2e2;
+}
+
+/* Action buttons (Save / Cancel) */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.actions button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+/* Save button */
+.actions button[type="submit"] {
+  background: #4cafef;
+  color: #fff;
+}
+
+.actions button[type="submit"]:hover {
+  background: #3a9cd8;
+}
+
+/* Cancel button */
+.actions button[type="button"] {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.actions button[type="button"]:hover {
+  background: #e2e2e2;
+}
+
+
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

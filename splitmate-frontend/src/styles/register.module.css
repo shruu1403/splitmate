@@ -1,0 +1,136 @@
+/* Register.module.css */
+
+/* Centering and background */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background: #f0f4f8; /* soft light blue/gray */
+  font-family: "Inter", sans-serif;
+}
+
+/* Card / form container */
+.card {
+  background-color: #ffffff;
+  padding: 1.5rem 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 400px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* Title */
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #111827; /* dark gray */
+}
+
+/* Error message */
+.error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+/* Form and inputs */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inputField {
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: #111827;
+  transition: border-color 0.2s;
+}
+
+.inputField:focus {
+  border-color: #3b82f6; /* soft blue */
+  outline: none;
+}
+
+/* Register button */
+.button {
+  padding: 0.65rem;
+  background-color: #3b82f6; /* blue-500 */
+  color: #ffffff;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.button:hover:not(:disabled) {
+  background-color: #2563eb; /* darker blue */
+  transform: scale(1.02);
+}
+
+.button:disabled {
+  background-color: #93c5fd; /* light blue */
+  cursor: not-allowed;
+}
+
+/* OR separator */
+.orContainer {
+  display: flex;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.orContainer hr {
+  flex-grow: 1;
+  border: 1px solid #e5e7eb; /* light gray */
+}
+
+.orContainer span {
+  margin: 0 0.5rem;
+  color: #6b7280; /* medium gray */
+  font-size: 0.8rem;
+}
+
+/* Google Button */
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem;
+  background-color: #ef4444; /* red-500 */
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.1s ease-in-out, background-color 0.2s;
+}
+
+.googleBtn:hover {
+  background-color: #dc2626; /* red-600 */
+  transform: scale(1.02);
+}
+
+.googleBtn img {
+  width: 18px;
+  height: 18px;
+}

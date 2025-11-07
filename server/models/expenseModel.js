@@ -30,11 +30,27 @@ const expenseSchema = mongoose.Schema(
       required: true,
       min: 0,
     },
+    // Single payer (legacy). If multiple payers are used, this can be null.
     paidBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
-      required: true,
+      required: false,
     },
+    // Multiple payers support: list of users with their contributed amounts
+    payers: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "user",
+          required: true,
+        },
+        amount: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+      },
+    ],
      createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",

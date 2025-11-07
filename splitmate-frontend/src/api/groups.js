@@ -47,3 +47,19 @@ export const getSingleGroup = async (id) => {
   }
   return res.json();
 };
+
+export const deleteGroup = async (groupId) => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${TESTING_URL}/groups/${groupId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.msg || "Failed to delete group");
+  }
+  return res.json();
+};

@@ -6,14 +6,69 @@ const { groupModel } = require("../models/groupModel");
 const { notificationModel } = require("../models/notificationModel");
 const { activityModel } = require("../models/activityModel");
 const {calculateBalance} = require("../utils/calculateBalance")
+const crypto = require("crypto");
+const { initRazorpay } = require("../config/razorpay");
 
 const settlementRouter = express.Router();
+
+// Razorpay: create order (demo)
+settlementRouter.post("/create-order", auth, async (req, res) => {
+  try {
+    const { amount } = req.body; // amount in INR
+    if (!amount || amount <= 0) return res.status(400).send({ msg: "Amount is required" });
+
+    const razorpay = initRazorpay();
+    if (!razorpay) return res.status(500).send({ msg: "Razorpay not configured" });
+
+    const options = {
+      amount: Math.round(amount * 100), // convert to paise
+      currency: "INR",
+      receipt: `rcpt_${Date.now()}`,
+      notes: { purpose: "splitmate_settlement_demo" },
+    };
+
+    const order = await razorpay.orders.create(options);
+    res.status(201).send({
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      keyId: process.env.RAZORPAY_KEY_ID,
+    });
+  } catch (error) {
+    console.error("Error creating Razorpay order:", error);
+    res.status(500).send({ msg: "Failed to create order" });
+  }
+});
+
+// Razorpay: verify payment signature (demo)
+settlementRouter.post("/verify", auth, async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).send({ msg: "Missing Razorpay parameters" });
+    }
+
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const expectedSignature = crypto
+      .createHmac("sha256", key_secret)    //hmac is hash based message authentication code 
+      .update(body.toString())
+      .digest("hex");
+
+    const isValid = expectedSignature === razorpay_signature;
+    res.status(200).send({ verified: isValid });
+  } catch (error) {
+    console.error("Error verifying Razorpay signature:", error);
+    res.status(500).send({ msg: "Failed to verify signature" });
+  }
+});
 
 // Record a new settlement
 settlementRouter.post("/add", auth, async (req, res) => {
   try {
     const {
       groupId,
+      participants, // For direct friend settlements
       from,
       to,
       amount,
@@ -31,71 +86,108 @@ settlementRouter.post("/add", auth, async (req, res) => {
       return res.status(400).send({ msg: "Amount must be greater than 0" });
     }
 
-    const group = await groupModel.findById(groupId);
-    if (!group) return res.status(404).send({ msg: "Group not found" });
+    let group = null;
+    let isDirectSettlement = false;
 
-    if (!group.members.includes(from) || !group.members.includes(to)) {
-      return res.status(400).send({ msg: "Both users must be in the group" });
+    // Handle direct friend settlements (no group)
+    if (!groupId && participants && participants.length === 2) {
+      const users = await userModel.find({ _id: { $in: participants } });
+      if (users.length !== 2) {
+        return res.status(400).send({ msg: "Invalid participants" });
+      }
+      // Verify from and to are in participants
+      if (!participants.includes(from) || !participants.includes(to)) {
+        return res.status(400).send({ msg: "From and To must be in participants" });
+      }
+      isDirectSettlement = true;
+    }
+    // Handle group settlements
+    else if (groupId) {
+      group = await groupModel.findById(groupId);
+      if (!group) return res.status(404).send({ msg: "Group not found" });
+
+      if (!group.members.includes(from) || !group.members.includes(to)) {
+        return res.status(400).send({ msg: "Both users must be in the group" });
+      }
+    } else {
+      return res.status(400).send({ msg: "Either groupId or participants required" });
     }
 
     const fromUser = await userModel.findById(from);
     const toUser = await userModel.findById(to);
-    // 🔹 Step 1: calculate current balances
-    const balances = await calculateBalance(groupId);
-
-    // 🔹 Step 2: determine actual debt from → to
-    let maxDebt = 0;
-    if (balances[from] < 0 && balances[to] > 0) {
-      maxDebt = Math.min(Math.abs(balances[from]), balances[to]);
+    
+    if (!fromUser || !toUser) {
+      return res.status(404).send({ msg: "User not found" });
     }
-
-    // 🔹 Step 3: validate settlement amount
-    if (amount > maxDebt) {
-      return res.status(400).json({
-        msg: `Invalid settlement: ${fromUser.name} only owes ₹${maxDebt} to ${toUser.name}, cannot settle ₹${amount}`,
-      });
-    }
-    // 👉 Save settlement as an expense
+    
+    // Save settlement as an expense
     const settlement = await expenseModel.create({
-      groupId,
+      groupId: groupId || null, // null for direct friend settlements
+      participants: participants || undefined, // for direct friend settlements
+      isDirectExpense: isDirectSettlement, // Mark as direct expense if no group
       type: "settlement",
       description: `Settlement: ${fromUser.name} → ${toUser.name}`,
-      paidBy: from, // who paid
+      paidBy: from,
+      createdBy: req.userID,
       amount,
-      splitAmong: [{ user: to, share: amount }], // who received
+      splitAmong: [{ user: to, share: amount }],
       method: method || "cash",
       externalProvider: method === "external" ? externalProvider : null,
       transactionId: method === "external" ? transactionId : null,
       status: method === "cash" ? "completed" : "pending",
     });
 
-    // Notify all
-    for (let member of group.members) {
-      if (member.toString() !== from) {
-        const notification = await notificationModel.create({
-          userId: member,
-          type: "settlement_done",
-          message: `${fromUser.name} settled ₹${amount} with ${toUser.name} in ${group.name}`,
-        });
-        const { io } = require("../index");
-        io.to(member.toString()).emit("notification", { notification });
-      }
-    }
-
-    // Log activity
-    await activityModel.create({
-      type: "settlement_done",
-      user: req.userID,
-      group: group._id,
-      description: `${fromUser.name} paid ₹${amount} to ${toUser.name} in ${group.name}`,
-    });
-
     const { io } = require("../index");
-    io.to(groupId.toString()).emit("settlement_done", {
-      groupId,
-      settlement,
-      message: `${fromUser.name} paid ₹${amount} to ${toUser.name} in ${group.name}`,
-    });
+
+    // Handle notifications differently for group vs direct settlements
+    if (group && group.members) {
+      // Group settlement - notify all members
+      for (let member of group.members) {
+        if (member.toString() !== from) {
+          const notification = await notificationModel.create({
+            userId: member,
+            type: "settlement_done",
+            message: `${fromUser.name} settled ₹${amount} with ${toUser.name} in ${group.name}`,
+          });
+          io.to(member.toString()).emit("notification", { notification });
+        }
+      }
+
+      // Log activity for group
+      await activityModel.create({
+        type: "settlement_done",
+        user: req.userID,
+        group: group._id,
+        description: `${fromUser.name} paid ₹${amount} to ${toUser.name} in ${group.name}`,
+      });
+
+      // Emit settlement event to group room
+      io.to(groupId.toString()).emit("settlement_done", {
+        groupId,
+        settlement,
+        message: `${fromUser.name} paid ₹${amount} to ${toUser.name} in ${group.name}`,
+      });
+    } else {
+      // Direct friend settlement - notify only the 'to' user
+      const notification = await notificationModel.create({
+        userId: to,
+        type: "settlement_done",
+        message: `${fromUser.name} settled ₹${amount} with you`,
+      });
+      io.to(to.toString()).emit("notification", { notification });
+
+      // Log activity for friend settlement
+      await activityModel.create({
+        type: "settlement_done",
+        user: req.userID,
+        settlement: settlement._id,
+        description: `${fromUser.name} paid ₹${amount} to ${toUser.name}`,
+      });
+
+      // Emit settlement event to both users
+      io.to(from.toString()).emit("settlement_recorded", { settlement });
+      io.to(to.toString()).emit("settlement_recorded", { settlement });
+    }
 
     res.status(201).send({ msg: "Settlement recorded", settlement });
   } catch (error) {
@@ -136,6 +228,36 @@ settlementRouter.get("/user/:userId", auth, async (req, res) => {
     res.status(200).send({ settlements });
   } catch (error) {
     res.status(500).send({ msg: "Error fetching user settlements" });
+  }
+});
+
+// Get settlements between two friends (direct friend settlements)
+settlementRouter.get("/friends", auth, async (req, res) => {
+  try {
+    const { user1, user2 } = req.query;
+    
+    if (!user1 || !user2) {
+      return res.status(400).send({ msg: "Both user1 and user2 are required" });
+    }
+
+    // Find all settlements between these two users (both directions)
+    const settlements = await expenseModel
+      .find({
+        type: "settlement",
+        isDirectExpense: true, // Only direct friend settlements
+        $or: [
+          { paidBy: user1, "splitAmong.user": user2 },
+          { paidBy: user2, "splitAmong.user": user1 },
+        ],
+      })
+      .populate("paidBy", "name email")
+      .populate("splitAmong.user", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).send({ settlements });
+  } catch (error) {
+    console.error("Error fetching friend settlements:", error);
+    res.status(500).send({ msg: "Error fetching friend settlements" });
   }
 });
 

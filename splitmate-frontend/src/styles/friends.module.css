@@ -1,123 +1,143 @@
-/* src/styles/friends.module.css */
+/* src/styles/friends.module.css - trimmed to only what's used on Friends page */
 
 .layout {
-  display: flex;
+  display: block;
   height: 100%;
-  background: #fff;
+  background: #F8FAFC;
+  padding: 16px 18px;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-/* Sidebar section inside Friends page (if any) */
-.sidebar {
-  width: 250px;
-  border-right: 1px solid #ddd;
-  padding: 1rem;
-  background: #fafafa;
-}
-
-.friendList {
+/* Loader container for responsive sizing */
+.loaderContainer {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  justify-content: center;
+  padding: 12px;
 }
 
-.friendItem {
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background 0.2s ease;
+/* Scale down loaders on mobile */
+@media (max-width: 768px) {
+  .loaderContainer {
+    transform: scale(0.85);
+    padding: 10px;
+  }
 }
 
-.friendItem:hover {
-  background: #f2f2f2;
-}
-
-.activeFriend {
-  background: #e6f7ff;
-  font-weight: 600;
-}
-
-/* Main content */
-.mainContent {
-  flex: 1;
-  padding: 1.5rem;
-  overflow-y: auto;
+@media (max-width: 480px) {
+  .loaderContainer {
+    transform: scale(0.7);
+    padding: 8px;
+  }
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
+  background: #f6fbfd;
+  border: 1px solid rgba(116, 141, 146, 0.22);
+  border-radius: 12px;
+  padding: 12px 10px;
 }
 
 .header h2 {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
 }
 
-.actionBtns {
-  display: flex;
-  gap: 0.5rem;
-}
+.actions { display: flex; gap: 0.5rem; }
 
-.actionBtns button {
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
+.addExpense {
+ background: #20b6c7;
+  color: white;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
   font-size: 0.9rem;
-  transition: background 0.2s;
+  letter-spacing: 0.2px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family:  "Inter", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+
+  transition: transform 0.06s ease, filter 0.2s ease;
 }
 
-.addExpenseBtn {
-  background: #ff7043;
-  color: white;
-}
+.addExpense:hover { filter: brightness(1.09); }
 
-.addExpenseBtn:hover {
-  background: #f4511e;
-}
+/* Overall Balance Summary Card */
+.overallBalanceSummary { margin: 1rem 0; }
 
-.settleBtn {
-  background: #4caf50;
-  color: white;
-}
-
-.settleBtn:hover {
-  background: #388e3c;
-}
-
-/* Balances */
-.balances {
-  margin-bottom: 1.5rem;
-}
-
-.balanceItem {
+.balanceSummaryCard {
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem 0;
-  font-size: 0.95rem;
+  align-items: center;
+  background: #f6fbfd;
+  border: 1px solid rgba(116, 141, 146, 0.22);
+  border-radius: 12px;
+  padding: 16px;
+  gap: 12px;
 }
 
-.green {
-  color: #2e7d32;
-  font-weight: 500;
+.balanceSummaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: center;
+  padding: 12px 14px;
+  border-radius: 12px;
+  flex: 1;
 }
 
-.red {
-  color: #c62828;
-  font-weight: 500;
+/* Tint per item: 1=You owe, 3=You are owed, 5=Net */
+.balanceSummaryCard > .balanceSummaryItem:nth-child(2) {
+  background: rgb(255, 237, 238);
+  border: 1px solid #f6c6c6;
+}
+.balanceSummaryCard > .balanceSummaryItem:nth-child(1) {
+  background: rgb(223, 250, 240);
+  border: 1px solid #bfeede;
+}
+.balanceSummaryCard > .balanceSummaryItem:nth-child(4) {
+  background: rgb(235, 246, 255);
+  border: 1px solid #cfe6ff;
+}
+.balanceSummaryItem:hover {
+  /* filter: brightness(1.03); */
+    transform: translateY(-1px);
+  /* box-shadow: 0 10px 22px rgba(0,0,0,0.08); */
+  background: #f6fbfd;
 }
 
-/* Expenses */
-.expensesSection {
-  margin-top: 1rem;
+.balanceLabel {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgb(95, 113, 119);
+  /* font-family: Arial, Helvetica, sans-serif; */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.expenseList {
+.balanceValue {
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.balanceSummaryDivider { display: none; width: 0; height: 0; background: transparent; }
+
+.positive { color: #4caf50; }
+.negative { color: #f44336; }
+
+/* Expenses list */
+.expensesSection { margin-top: 1rem; }
+
+/* align with Friends.jsx: use .expensesList */
+.expensesList {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -126,60 +146,605 @@
 .expenseItem {
   display: flex;
   justify-content: space-between;
-  padding: 0.7rem 1rem;
-  background: #f9f9f9;
-  border-radius: 8px;
-  border: 1px solid #eee;
+  align-items: center;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(116, 141, 146, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.expenseItem:hover {
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+  border-color: rgba(32, 182, 199, 0.25);
 }
 
-.expenseLeft {
-  display: flex;
-  flex-direction: column;
+.expenseLeft { display: flex; align-items: center; gap: 1rem; }
+
+/* Date pill */
+.datePill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 10px;
+  background: #eaf6ff;
+  border: 1px solid #cfe9ff;
+  color: #0d5a76;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+}
+.dateText { line-height: 1; }
+
+.expenseDescription { display: flex; flex-direction: column; gap: 0.25rem; }
+.descriptionRow { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+.expenseTitle { font-weight: 700; font-size: 1rem; color: #0f172a; }
+.expenseSubtitle { font-size: 15px; color: #64748B; font-weight: 600; }
+
+.groupLink {
+  color: #1976d2;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.groupLink:hover { text-decoration: underline; }
+
+.settledBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
 }
 
-.date {
-  font-size: 0.8rem;
-  color: #888;
-}
+.expenseRight { display: flex; flex-direction: column; align-items: flex-end; gap: 0.2rem; font-size: 1rem; }
+.expenseAmount { text-align: right; }
 
-.expenseRight {
-  text-align: right;
-  font-weight: 500;
-}
+.red { color: #c62828; font-weight: 500; }
+.green { color: #2e7d32; font-weight: 500; }
 
-.settledState {
+.deleteBtn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  color: rgb(212, 98, 99);
+  transition: background 0.2s;
+}
+.deleteBtn:hover { background: #ffe6e6; }
+
+/* Settled expense styling */
+.settledExpense { opacity: 0.7; }
+
+/* Empty state */
+.empty { text-align: center; padding: 2rem; color: #666; font-size: 1.1rem; }
+
+/* Delete Confirmation Modal */
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: center;
+  z-index: 1000;
   padding: 1rem;
-  background: #f1f8f6;
+}
+
+.confirmModal {
+  background: white;
   border-radius: 8px;
-  color: #2e7d32;
-  font-weight: 500;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-.checkmark {
-  color: #2e7d32;
-  font-size: 1.3rem;
-}
+.confirmActions { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center; }
 
-.settledExpenses {
-  margin-top: 1rem;
-}
-
-.settledExpenses h4 {
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #555;
-}
-
-.link {
-  margin-left: 0.5rem;
-  color: #1976d2;
+.btnDanger {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.btnDanger:hover { background: #c0392b; }
+
+.btnSecondary {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.btnSecondary:hover { background: #545b62; }
+
+/* Pair-wise settlement section */
+.settlementSection {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 15px 0;
 }
 
-.link:hover {
-  text-decoration: underline;
+.balanceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid rgba(116, 141, 146, 0.22);
+}
+
+.balanceInfo { display: flex; flex-direction: column; gap: 4px; }
+.balanceName { font-size: 16px; color: #333; font-weight: 500; }
+.balanceAmount { font-size: 20px; font-weight: 700; color: #e74c3c; }
+
+.settleButton {
+  background: #20b6c7;
+  color: #f1f7f5;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  transition: transform 0.06s ease, filter 0.2s ease;
+}
+.settleButton:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.settleButton:active { transform: translateY(0); }
+
+.allSettled {
+  text-align: center;
+  color: #4caf50;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 16px;
+  background: #e8f5e9;
+  border-radius: 6px;
+}
+
+/* Settlement History */
+.settlementHistory { margin-top: 12px; }
+.settlementHistory h4 {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.settlementItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f0f8f0;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  border-left: 3px solid #4caf50;
+}
+.settlementIcon {
+  width: 28px;
+  height: 28px;
+  background: #4caf50;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.settlementDetails { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.settlementText { font-size: 14px; color: #333; }
+.settlementDate { font-size: 12px; color: #888; }
+
+/* Enhanced balance label styles for Friends page */
+.balanceName {
+  font-size: 18px;
+  font-weight: 700;
+  color: inherit;
+  letter-spacing: 0.01em;
+  margin-bottom: 2px;
+}
+
+.redd {
+  color: #d32f2f;
+  font-weight: 600;
+  /* background: rgba(211,47,47,0.07); */
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: inline-block;
+  font-size: 1rem;
+}
+.greenn {
+  color: #388e3c;
+  font-weight: 600;
+  /* background: rgba(56,142,60,0.07); */
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: inline-block;
+  font-size: 1rem;
+
+}
+.balanceIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: #2b3a42;
+}
+.balanceIconOwe { color: #b91c1c; }
+.balanceIconOwed { color: #0f766e; }
+.balanceIconNet { color: #0a3d8a; }
+
+/* Mobile Responsive Styles for Friends Page */
+@media (max-width: 768px) {
+  .layout { padding: 12px 14px; }
+  
+  .header { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 10px; 
+    padding: 10px 12px; 
+  }
+  .header h2 { font-size: 1.2rem; }
+  
+  .actions { 
+    width: 100%; 
+    flex-wrap: wrap; 
+    justify-content: flex-start; 
+    gap: 6px; 
+  }
+  .addExpense { 
+    padding: 7px 11px; 
+    height: 32px; 
+    font-size: 0.82rem; 
+  }
+  
+  /* Overall balance summary */
+  .overallBalanceSummary { margin: 12px 0; }
+  .balanceSummaryCard { 
+    flex-direction: column; 
+    gap: 10px; 
+    padding: 12px; 
+  }
+  .balanceSummaryItem { 
+    padding: 10px 12px; 
+  }
+  .balanceLabel { font-size: 0.9rem; }
+  .balanceValue { font-size: 1.1rem; }
+  
+  /* Expenses list */
+  .expensesList { gap: 10px; }
+  .expenseItem { padding: 10px 12px; }
+  .expenseLeft { gap: 0.7rem; }
+  .datePill { height: 26px; padding: 0 9px; font-size: 12px; }
+  .expenseTitle { font-size: 0.95rem; }
+  .expenseSubtitle { font-size: 0.8rem; }
+  .settledBadge { font-size: 0.7rem; padding: 0.12rem 0.4rem; }
+  .expenseRight { font-size: 1rem; }
+  .deleteBtn { font-size: 0.6rem; padding: 0.2rem; }
+  
+  /* Settlement section */
+  .settlementSection { padding: 12px; margin: 12px 0; }
+  .balanceItem { padding: 10px 12px; }
+  .balanceName { font-size: 0.9rem; }
+  .balanceAmount { font-size: 1.1rem; }
+  .settleButton { 
+    padding: 5px 9px !important; 
+    font-size: 0.7rem !important; 
+  }
+  
+  /* Settlement history */
+  .settlementHistory h4 { font-size: 0.8rem; }
+  .settlementItem { padding: 10px; gap: 10px; }
+  .settlementIcon { width: 26px; height: 26px; font-size: 14px; }
+  .settlementText { font-size: 0.8rem; }
+  .settlementDate { font-size: 0.7rem; }
+  
+  .redd, .greenn { font-size: 0.95rem; }
+}
+
+@media (max-width: 480px) {
+  .layout { padding: 10px 12px; }
+  
+  .header { padding: 8px 10px; }
+  .header h2 { font-size: 1rem; }
+  .header p{ font-size: 0.85rem; };
+  
+  .actions { gap: 6px; }
+  .addExpense { 
+    flex: 1;
+    padding: 6px 10px; 
+    height: 28px; 
+    font-size: 0.76rem; 
+  }
+   .loadingShell {
+    padding: 10px !important;
+  }
+  
+  /* Overall balance summary compact */
+  .overallBalanceSummary { margin: 10px 0; }
+  .balanceSummaryCard { 
+    flex-direction: column; 
+    gap: 8px; 
+    padding: 10px; 
+  }
+  .balanceSummaryItem { 
+    padding: 8px 10px; 
+  }
+  .balanceLabel { font-size: 0.8rem; }
+  .balanceValue { font-size: 0.98rem; }
+  
+  /* Expenses list compact */
+  .expensesList { gap: 10px; }
+  /* Expense item styling moved to CRITICAL section at end of file */
+  
+  /* Settlement section very compact */
+  .settlementSection { padding: 10px; margin: 10px 0; }
+  .balanceItem { 
+    padding: 8px 10px; 
+    /* Keep a single-row layout for the statement + button */
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+  .balanceInfo { width: 100%; }
+  .balanceName { font-size: 0.85rem; }
+  .balanceAmount { font-size: 1rem; }
+  .settleButton { 
+    padding: 5px 9px !important; 
+    font-size: 0.7rem !important;
+    /* Do NOT stretch on phone; keep button at the right edge */
+    align-self: auto !important;
+    width: auto !important;
+    text-align: center;
+    min-height: 30px;
+    margin-left: auto !important;
+  }
+  
+  /* Settlement history compact */
+  .settlementHistory h4 { font-size: 0.75rem; margin-bottom: 8px; }
+  .settlementItem { padding: 8px; gap: 8px; }
+  .settlementIcon { width: 24px; height: 24px; font-size: 13px; }
+  .settlementText { font-size: 0.75rem; }
+  .settlementDate { font-size: 0.68rem; }
+  
+  .allSettled { font-size: 0.8rem; padding: 12px; }
+  .empty { font-size: 0.95rem; padding: 1.5rem; }
+  
+  .redd, .greenn { font-size: 0.88rem; padding: 2px 6px; }
+}
+
+/* CRITICAL: Mobile responsive overrides - MUST be at end to override base styles */
+@media (max-width: 768px) {
+  /* Force buttons to be responsive */
+  .addExpense {
+    padding: 7px 11px !important;
+    height: 32px !important;
+    font-size: 0.82rem !important;
+  }
+  
+  /* Force expense cards to be responsive */
+  .expenseItem {
+    padding: 10px 12px !important;
+  }
+  
+  .expenseLeft {
+    gap: 0.7rem !important;
+  }
+  
+  .datePill {
+    height: 26px !important;
+    padding: 0 9px !important;
+    font-size: 12px !important;
+  }
+  
+  .expenseTitle {
+    font-size: 0.95rem !important;
+  }
+  
+  .expenseSubtitle {
+    font-size: 0.8rem !important;
+  }
+  
+  .settledBadge {
+    font-size: 0.7rem !important;
+    padding: 0.12rem 0.4rem !important;
+  }
+  
+  .expenseRight {
+    font-size: 1rem !important;
+  }
+  
+  .deleteBtn {
+    font-size: 0.7rem !important;
+    padding: 0.2rem !important;
+  }
+  
+  /* Balance summary responsive */
+  .balanceSummaryItem {
+    padding: 10px 12px !important;
+  }
+  
+  .balanceLabel {
+    font-size: 0.9rem !important;
+  }
+  
+  .balanceValue {
+    font-size: 1.1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Force buttons to be even more compact on phone */
+  .addExpense {
+    flex: 1 !important;
+    height: 28px !important;
+    font-size: 0.76rem !important;
+    padding: 6px 10px !important;
+  }
+  
+  /* Force expense cards to be compact - KEEP ROW LAYOUT */
+  .expenseItem {
+    padding: 10px !important;
+    /* Keep flex-direction: row to maintain left-right layout */
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  /* Ensure the settle row spans fully and button sticks right even if extra wrappers exist */
+  .settlementSection .balanceItem > *:first-child { flex: 1 1 auto !important; }
+  .settlementSection .balanceItem > *:last-child { margin-left: auto !important; }
+  
+  .expenseLeft {
+    gap: 0.6rem !important;
+    flex: 1 !important;
+    /* Allow expenseLeft to wrap if needed */
+  }
+  
+  .datePill {
+    height: 22px !important;
+    padding: 0 8px !important;
+    font-size: 11px !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .expenseDescription {
+    flex: 1 !important;
+  }
+  
+  .expenseTitle {
+    font-size: 0.88rem !important;
+  }
+  
+  .expenseSubtitle {
+    font-size: 0.75rem !important;
+  }
+  
+  .settledBadge {
+    font-size: 0.65rem !important;
+    padding: 0.1rem 0.35rem !important;
+  }
+  
+  .expenseRight {
+    /* Keep column layout for amount above delete button */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 0.3rem !important;
+    font-size: 0.9rem !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .expenseAmount {
+    text-align: right !important;
+    font-size: 0.18rem;
+  }
+  
+  .deleteBtn {
+    font-size: 0.9rem !important;
+    padding: 0.15rem !important;
+  }
+  
+  .red, .green {
+    font-size: 0.8rem !important;
+  }
+  
+  /* Balance summary very compact */
+  .balanceSummaryCard {
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 10px !important;
+  }
+  
+  .balanceSummaryItem {
+    padding: 8px 10px !important;
+  }
+  
+  .balanceLabel {
+    font-size: 0.8rem !important;
+  }
+  
+  .balanceValue {
+    font-size: 0.98rem !important;
+  }
+  
+  .redd, .greenn {
+    font-size: 0.88rem !important;
+    padding: 2px 6px !important;
+  }
+  
+  /* Confirmation Modal responsive */
+  .confirmModal {
+    padding: 1.2rem !important;
+    max-width: 320px !important;
+    width: 92% !important;
+  }
+  
+  .confirmModal h3 {
+    font-size: 1.1rem !important;
+  }
+  
+  .confirmModal p {
+    font-size: 0.9rem !important;
+  }
+  
+  .confirmActions {
+    flex-direction: column !important;
+    gap: 0.6rem !important;
+    margin-top: 1.2rem !important;
+  }
+  
+  .btnDanger,
+  .btnSecondary {
+    width: 100% !important;
+    font-size: 0.8rem !important;
+    padding: 0.5rem 1rem !important;
+  }
+}
+
+/* Tablet confirmation modal */
+@media (max-width: 768px) {
+  .confirmModal {
+    padding: 1.5rem !important;
+    max-width: 360px !important;
+  }
+  
+  .confirmActions {
+    gap: 0.8rem !important;
+  }
+  
+  .btnDanger,
+  .btnSecondary {
+    font-size: 0.85rem !important;
+    padding: 0.45rem 0.9rem !important;
+  }
 }

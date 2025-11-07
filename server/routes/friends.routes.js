@@ -12,56 +12,50 @@ friendRouter.get("/", auth, async (req, res) => {
     const userId = req.userID;
     const search = (req.query.search || "").toLowerCase();
 
-    // Find accepted friend invites (group=null)
+    // Base: user.friends list
+    const me = await userModel.findById(userId).select("email friends");
+    const friendIdSet = new Set((me?.friends || []).map((id) => id.toString()));
+
+    // Compat: accepted friend invites (group=null)
     const invites = await inviteModel
       .find({
         $or: [
           { invitedBy: userId }, // user sent invite
-          { email: (await userModel.findById(userId)).email }, // user received invite
+          { email: me?.email }, // user received invite
         ],
         group: null,
         status: "accepted",
       })
       .populate("invitedBy", "name email");
 
-    let friends = [];
-
     for (const inv of invites) {
       if (inv.invitedBy._id.toString() === userId) {
         // user invited someone → friend is by email
-        const friend = await userModel.findOne(
-          { email: inv.email },
-          "name email"
-        );
-        if (friend) friends.push(friend);
+        const friend = await userModel.findOne({ email: inv.email }).select("_id");
+        if (friend) friendIdSet.add(friend._id.toString());
       } else {
         // user was invited → friend is invitedBy
-        friends.push(inv.invitedBy);
+        friendIdSet.add(inv.invitedBy._id.toString());
       }
     }
 
-    // Deduplicate
-    const uniqueFriends = [];
-    const seen = new Set();
-    friends.forEach((friend) => {
-      if (!seen.has(friend._id.toString())) {
-        seen.add(friend._id.toString());
-        uniqueFriends.push(friend);
-      }
-    });
+    const friendIds = Array.from(friendIdSet);
+    const friends = await userModel
+      .find({ _id: { $in: friendIds } })
+      .select("name email");
 
     // Optional search filter
-    let filtered = uniqueFriends;
-    if (search) {
-      filtered = uniqueFriends.filter(
-        (f) =>
-          f.name.toLowerCase().includes(search) ||
-          f.email.toLowerCase().includes(search)
-      );
-    }
+    const filtered = search
+      ? friends.filter(
+          (f) =>
+            f.name.toLowerCase().includes(search) ||
+            f.email.toLowerCase().includes(search)
+        )
+      : friends;
 
     res.json(filtered);
   } catch (err) {
+    console.error("Error in GET /friend", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -96,15 +90,21 @@ friendRouter.get("/:friendId", auth, async (req, res) => {
     // Calculate balance
     let balance = 0;
     directExpenses.forEach((exp) => {
+      const paidById = exp.paidBy._id ? exp.paidBy._id.toString() : exp.paidBy.toString();
+      
       exp.splitAmong.forEach((split) => {
-        const splitUserId = split.userID
-          ? split.userID.toString()
-          : split.user.toString();
+        const splitUserId = split.user._id ? split.user._id.toString() : split.user.toString();
+        const splitAmount =  split.share;
+        
         if (splitUserId === userId) {
-          balance -= split.amount;
-        }
-        if (splitUserId === friendId) {
-          balance += split.amount;
+          // Current user's share of the expense
+          if (paidById === userId) {
+            // User paid and owes this amount - net effect is getting back (expense - own share)
+            balance += (exp.amount - splitAmount);
+          } else {
+            // User didn't pay but owes this amount
+            balance -= splitAmount;
+          }
         }
       });
     });
@@ -126,3 +126,52 @@ friendRouter.get("/:friendId", auth, async (req, res) => {
 });
 
 module.exports = { friendRouter };
+
+// DELETE friend: remove both sides of friendship and mark accepted friend-invites as rejected
+friendRouter.delete('/:friendId', auth, async (req, res) => {
+  try {
+    const userId = req.userID;
+    const { friendId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(friendId)) {
+      return res.status(400).json({ msg: 'Invalid friendId' });
+    }
+
+    const me = await userModel.findById(userId);
+    const friend = await userModel.findById(friendId);
+    if (!me || !friend) return res.status(404).json({ msg: 'User not found' });
+
+    me.friends = (me.friends || []).filter(id => id.toString() !== friendId);
+    friend.friends = (friend.friends || []).filter(id => id.toString() !== userId);
+
+    await me.save();
+    await friend.save();
+
+    // Mark any accepted friend invites between them as rejected to avoid re-surfacing
+    await inviteModel.updateMany(
+      {
+        status: 'accepted',
+        group: null,
+        $or: [
+          { invitedBy: userId, email: friend.email },
+          { invitedBy: friendId, email: me.email }
+        ]
+      },
+      { $set: { status: 'rejected' } }
+    );
+
+    // Emit socket update to both
+    try {
+      const { io } = require('../index');
+      io.to(userId.toString()).emit('friends_updated');
+      io.to(friendId.toString()).emit('friends_updated');
+    } catch (e) {
+      console.warn('Socket emit failed for friends_updated:', e.message);
+    }
+
+    res.json({ msg: 'Friend removed' });
+  } catch (err) {
+    console.error('Error deleting friend:', err);
+    res.status(500).json({ msg: 'Server error', error: err.message });
+  }
+});

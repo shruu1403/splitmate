@@ -37,3 +37,22 @@ export const getFriendDetails = async (friendId) => {
   return res.json(); 
   // → { friend: { _id, name, email, expenses: [], balance, groups:[] } }
 };
+
+// 🔹 Delete a friend
+export const deleteFriend = async (friendId) => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${TESTING_URL}/friend/${friendId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.msg || "Failed to delete friend");
+  }
+  return data;
+};

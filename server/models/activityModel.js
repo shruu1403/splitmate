@@ -10,6 +10,7 @@ const activitySchema = new mongoose.Schema(
         "expense_deleted",
         "settlement_done",
         "group_created",
+        "group_deleted",
       ],
       required: true,
     },
@@ -26,6 +27,10 @@ const activitySchema = new mongoose.Schema(
     expense: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "expense",
+    },
+    settlement: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "expense", // settlements are stored as expenses with type="settlement"
     },
     amount: {    //for settlement and non expense activities
       type: Number,

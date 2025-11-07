@@ -2,13 +2,14 @@ const mongoose = require("mongoose");
 
 const inviteSchema = new mongoose.Schema(
   {
-    email: { type: String, required: true }, // target user email
+    email: { type: String, required :false}, // target user email
     invitedBy: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true }, // inviter
     group: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "group",
       default: null, // null means it's a FRIEND invite, not group-specific
     },
+    alsoAddToFriends: { type: Boolean, default: false },
     token: { type: String, required: true },
     status: {
       type: String,

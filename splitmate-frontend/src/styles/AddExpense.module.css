@@ -6,23 +6,46 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  overflow-y: auto;
+  padding: 20px;
+  
 }
 
 .modal {
   width: 380px;
+  max-width: 89vw;
+  max-height: 92vh;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  padding: 20px 20px 16px;
+  box-shadow: 0 18px 38px rgba(0,0,0,0.22);
+  padding: 0px 17px 15px;
+  margin: auto;
+  /* Allow left-side panels to render outside the modal bounds */
+  overflow: visible;
+  position: relative;
+  /* Remove the light border to avoid the visible white outline around the dark header */
+  border: none;
+    /* border: 10px solid yellow; */
+
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: 700;
+  font-weight: 400;
   font-size: 18px;
+  
+  padding: 15px 18px;
+  border-bottom: 1px solid rgba(116, 141, 146, 0.25);
+  color: #ffffff;
+  background: #425567; /* mint-teal bar like the screenshot */
+  border-radius: 12px 12px 0 0;
+  /* stretch across modal's horizontal padding */
+  margin: 0 -17px 10px;
+  margin-bottom: 15px;
 }
+
 
 .close {
   background: none;
@@ -30,15 +53,38 @@
   font-size: 20px;
   cursor: pointer;
   line-height: 1;
+  color: #f1f7f5;
 }
 
-.section { margin-top: 12px; }
+/* Make the X on the main modal dark for better contrast preference */
+.header .close { color: #ffffff; }
 
-.label {
-  display: block;
-  font-size: 13px;
-  color: #616161;
-  margin-bottom: 6px;
+.section { 
+  margin-top: 10px; 
+  /* border:1px solid red; */
+}
+
+.participants{
+  font-size: 0.9rem;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.inlineField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+    /* border:1px solid red; */
+
+}
+
+.inlineField .label {
+  margin: 0;
+  min-width: 64px;
+}
+
+.inlineField .input {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .chips {
@@ -46,6 +92,20 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+/* 
+.pillHeading {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #0c2c3a;
+  background: rgba(79, 195, 164, 0.18);
+  border: 1px solid rgba(79, 195, 164, 0.35);
+  border-radius: 999px;
+  white-space: nowrap;
+  
+} */
 
 .chip {
   padding: 6px 10px;
@@ -64,25 +124,35 @@
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .field { display: flex; flex-direction: column; }
 
 .input {
   padding: 8px 10px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid rgba(116, 141, 146, 0.38);
+  border-radius: 10px;
   outline: none;
+  width: 200px;
+  color: #0c2c3a;
+  background-color: #ffffff;
 }
 
-.input:focus { border-color: #26c6da; }
+.input:focus {
+  border-color: rgba(116, 141, 146, 0.55);
+  box-shadow: 0 0 0 3px rgba(18, 78, 102, 0.25);
+}
 
 .note {
   margin-top: 6px;
-  font-size: 12px;
-  color: #777;
+  font-size: 13px;
+  color: #516775;
+  display: flex;
+  /* align-items: center; */
+  justify-content: center;
+  margin-bottom: 12px;
 }
 
 .error {
@@ -93,27 +163,609 @@
 
 .footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 10px;
+    /* border: 10px solid yellow; */
+
 }
 
 .btnGhost {
-  background: #f0f0f0;
-  color: #424242;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
+  background: transparent;
+  color: #0e5b6e;
+  border: 1px solid rgba(116, 141, 146, 0.6);
+  padding: 7px 12px;
+  border-radius: 10px;
   cursor: pointer;
+}
+.btnGhost:hover {
+  background: rgba(14, 91, 110, 0.06);
 }
 
 .btnPrimary {
-  background: #43a047;
-  color: #fff;
+  background: linear-gradient(180deg, #1aa7c1, #0e8096);
+  color: #f1f7f5;
   border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 600;
+  /* box-shadow: 0 10px 22px rgba(15,125,146,0.22); */
+  transition: transform 0.06s ease, filter 0.2s ease;
 }
 
-.btnPrimary:disabled { background: #bdbdbd; cursor: not-allowed; }
+.btnPrimary:hover { filter: brightness(1.09); }
+.btnPrimary:active { transform: translateY(1px); }
+.btnPrimary:disabled { background: #9fb1b5; cursor: not-allowed; }
+
+/* New styles for enhanced split functionality */
+.participantSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin-top: 8px;
+}
+
+.checkboxLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.checkboxLabel span { display: inline-block; white-space: nowrap; }
+
+.customSplitSection {
+  margin-top: 10px;
+  border: 1px solid rgba(116, 141, 146, 0.3);
+  border-radius: 10px;
+  padding: 10px;
+  background: #eef7fa;
+}
+
+.customSplitRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.customSplitRow:last-child {
+  margin-bottom: 0;
+}
+
+.memberName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0c2c3a;
+}
+
+.customSplitInput {
+  width: 90px;
+  padding: 6px 8px;
+  border: 1px solid rgba(116, 141, 146, 0.38);
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: right;
+}
+
+.splitSummary {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(116, 141, 146, 0.25);
+  font-size: 13px;
+  color: #425567;
+  text-align: center;
+}
+
+/* Group selector row styles */
+.groupSelectorRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 280px;
+  
+}
+
+.groupSelectorRow .input {
+  flex: 1;
+}
+
+.addGroupBtn {
+  background:rgb(21, 157, 182);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  /* white-space: nowrap; */
+    /* border: 10px solid yellow; */
+
+  /* transition: transform 0.06s ease, filter 0.2s ease; */
+}
+
+.addGroupBtn:hover { filter: brightness(1.06); }
+
+.addGroupBtn:active { transform: translateY(1px); }
+
+.labelAndInputs {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 10px;
+  align-items: start;
+  /* margin-top: 12px; */
+  margin : 10px 10px;
+    /* border: 10px solid yellow; */
+
+}
+
+.labelTile {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  border: 1px solid #dcdcdc;
+  background: #eef2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.labelTile img { width: 36px; height: 36px; object-fit: contain; }
+.labelTile:hover { background: #c6dbed; }
+
+.inputsCol {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Summary line like Splitwise */
+.summaryLine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 15px;
+  color: #0c2c3a;
+  
+}
+
+/* Centered variant for the paid-by row */
+.summaryCenter {
+  justify-content: center;
+  text-align: center;
+  /* border:1px solid red */
+}
+
+.inlineLink {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  color: #0e5b6e;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 10px;
+  margin: 0;
+  background: rgba(76, 117, 128, 0.08);
+  /* margin-bottom: 5px; */
+    /* border: 10px solid yellow; */
+
+}
+
+/* .inlineLink:hover { } */
+
+.perPerson { color: #516775; font-size: 12.5px; }
+
+.perPersonNote {
+  color: #516775;
+  font-size: 12.5px;
+  text-align: center;
+  margin-top: 6px;
+  /* border: 1px solid red; */
+}
+
+/* Mini modal inside add expense */
+/* Backdrop for side modals to fade main modal */
+.sideModalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: none;
+}
+
+/* Side modal (appears to the left of the main modal) */
+.sideModal {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 12px);
+  width: 350px;
+  max-width: 90vw;
+  background: #fff;
+  /* border: 1px solid rgba(116, 141, 146, 0.28); */
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+  padding: 10px 12px 12px;
+  z-index: 1002;
+}
+
+/* Center helper for single-field rows like Date */
+.centerRow {
+  display: flex;
+  justify-content: center;
+  
+}
+
+.narrowInput {
+  width: 130px;
+  margin-bottom: 5px;
+}
+
+.miniHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  font-size: 17px;
+  color: #ffffff;
+  background: #425567; /* match main modal header */
+  padding: 15px 18px;
+  margin: -10px -12px 8px; /* stretch to panel edges */
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px 12px 0 0;
+}
+
+/* White X on dark mini headers for contrast */
+.miniHeader .close { color: #ffffff; }
+
+.optionList {
+  margin-top: 8px;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* keep input and label text beside each other */
+  gap: 10px; /* spacing between checkbox/radio and text */
+  flex-wrap: nowrap;
+  padding: 8px 4px;
+  border-radius: 8px;
+  width: 100%;
+  text-align: left;
+}
+
+.optionRow span {
+  flex: 1;
+  text-align: left;
+  word-break: break-word;
+}
+
+/* Keep controls inline and prevent the blue focus ring box */
+.optionRow input[type="checkbox"],
+
+/* Label chooser grid */
+.labelGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(70px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.labelCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(116, 141, 146, 0.28);
+  background: #f6fbfd;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.06s ease;
+}
+
+.labelCard:hover { background: rgba(14, 91, 110, 0.06); }
+
+.labelIcon { width: 26px; height: 26px; object-fit: contain; }
+.labelEmoji { font-size: 24px; line-height: 1; }
+.labelName { margin-top: 6px; font-size: 12.5px; color: #0c2c3a; white-space: nowrap; }
+.optionRow input[type="radio"] {
+  flex: 0 0 auto;
+}
+
+.optionRow input[type="checkbox"]:focus,
+.optionRow input[type="checkbox"]:focus-visible,
+.optionRow input[type="radio"]:focus,
+.optionRow input[type="radio"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.optionRow > span {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+
+/* Flex row with space-between specifically for payer rows (name left, input right) */
+.optionRowSpace {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  flex-wrap: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .backdrop { padding: 12px !important; }
+  .modal { 
+    width: 92vw !important; 
+    max-width: 92vw !important; 
+    padding: 0 14px 12px !important;
+  }
+  .header { 
+    font-size: 0.95rem !important; 
+    padding: 10px 12px !important; 
+    margin: 0 -14px 12px !important;
+  }
+  .input { 
+    width: 100% !important; 
+    font-size: 0.88rem !important; 
+    padding: 8px 10px !important;
+  }
+  .groupSelectorRow { width: 100% !important; }
+  .addGroupBtn {
+    padding: 8px 10px !important;
+    font-size: 0.8rem !important;
+  }
+  .participantSection { grid-template-columns: 1fr !important; gap: 6px 8px !important; }
+  .checkboxLabel { 
+    font-size: 0.85rem !important; 
+    gap: 8px !important;
+  }
+  .checkboxLabel input[type="checkbox"] {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  .customSplitRow { flex-wrap: wrap !important; gap: 8px !important; }
+  .customSplitInput {
+    width: 85px !important;
+    font-size: 0.85rem !important;
+  }
+  .labelAndInputs { 
+    grid-template-columns: 58px 1fr !important; 
+    gap: 10px !important; 
+    margin: 8px 6px !important; 
+  }
+  .labelTile { 
+    width: 48px !important; 
+    height: 48px !important; 
+    font-size: 20px !important; 
+  }
+  .labelTile img { width: 30px !important; height: 30px !important; }
+  .labelGrid { 
+    grid-template-columns: repeat(3, minmax(68px, 1fr)) !important; 
+    gap: 10px !important;
+  }
+  .labelCard {
+    padding: 8px 5px !important;
+  }
+  .labelName {
+    font-size: 0.7rem !important;
+  }
+  .footer { flex-wrap: wrap !important; gap: 8px !important; }
+  .btnPrimary { 
+    padding: 8px 12px !important; 
+    font-size: 0.88rem !important; 
+  }
+  .btnGhost { 
+    padding: 7px 10px !important; 
+    font-size: 0.85rem !important; 
+  }
+  .summaryLine { font-size: 0.88rem !important; }
+  .inlineLink {
+    padding: 3px 5px !important;
+    font-size: 0.88rem !important;
+  }
+  .perPersonNote { font-size: 0.78rem !important; }
+  .label { font-size: 0.88rem !important; }
+  .section { margin-top: 8px !important; }
+  .note { font-size: 0.78rem !important; }
+  .participants { font-size: 0.85rem !important; }
+  
+  /* Side modal becomes centered overlay on tablet */
+  .sideModal { 
+    position: fixed !important; 
+    left: 50% !important; 
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important; 
+    width: 88vw !important; 
+    max-width: 420px !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    z-index: 1003 !important;
+  }
+  .sideModalBackdrop {
+    display: block !important;
+    z-index: 1001 !important;
+  }
+  .modal {
+    position: relative;
+  }
+  .miniHeader {
+    font-size: 0.92rem !important;
+    padding: 10px 12px !important;
+  }
+  .optionRow {
+    padding: 6px 4px !important;
+  }
+  .optionRow span {
+    font-size: 0.85rem !important;
+  }
+  .optionRowSpace {
+    padding: 6px 4px !important;
+  }
+  .optionRowSpace span {
+    font-size: 0.85rem !important;
+  }
+  .customSplitInput {
+    font-size: 0.85rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal { 
+    width: 95vw !important; 
+    max-width: 95vw !important; 
+    padding: 0 10px 10px !important; 
+  }
+  .header { 
+    padding: 10px 10px !important; 
+    margin: 0 -10px 10px !important; 
+    font-size: 0.88rem !important; 
+  }
+  .close {
+    font-size: 18px !important;
+  }
+  .miniHeader { 
+    padding: 11px 10px !important; 
+    font-size: 0.85rem !important; 
+    margin: -10px -12px 6px !important;
+  }
+  .summaryLine { font-size: 0.82rem !important; }
+  .perPersonNote { font-size: 0.72rem !important; }
+  .narrowInput { 
+    width: 115px !important; 
+    font-size: 0.82rem !important; 
+    padding: 7px 8px !important;
+  }
+  .sideModal { 
+    position: fixed !important; 
+    left: 50% !important; 
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important; 
+    width: 92vw !important; 
+    max-width: 92vw !important;
+    max-height: 82vh !important;
+    overflow-y: auto !important;
+    padding: 8px 10px 10px !important;
+    z-index: 1003 !important;
+  }
+  .sideModalBackdrop {
+    display: block !important;
+    z-index: 1001 !important;
+  }
+  .labelGrid { 
+    grid-template-columns: repeat(2, minmax(72px, 1fr)) !important; 
+    gap: 8px !important;
+  }
+  .labelCard {
+    padding: 6px 4px !important;
+  }
+  .labelIcon { 
+    width: 22px !important; 
+    height: 22px !important; 
+  }
+  .labelEmoji { 
+    font-size: 20px !important; 
+  }
+  .labelName {
+    font-size: 0.68rem !important;
+    margin-top: 4px !important;
+  }
+  .footer { 
+    flex-direction: row !important; 
+    gap: 8px !important; 
+  }
+  .btnPrimary, .btnGhost { 
+    flex: 1 !important;
+    padding: 9px 12px !important; 
+    font-size: 0.82rem !important; 
+  }
+  .customSplitInput { 
+    width: 75px !important; 
+    padding: 5px 6px !important; 
+    font-size: 0.8rem !important; 
+  }
+  .memberName {
+    font-size: 0.82rem !important;
+  }
+  .input { 
+    font-size: 0.82rem !important; 
+    padding: 7px 8px !important; 
+  }
+  .label { font-size: 0.8rem !important; }
+  .section { margin-top: 6px !important; }
+  .chip { 
+    font-size: 0.75rem !important; 
+    padding: 4px 8px !important; 
+  }
+  .participants { font-size: 0.8rem !important; }
+  .checkboxLabel { 
+    font-size: 0.8rem !important; 
+    gap: 6px !important;
+  }
+  .checkboxLabel input[type="checkbox"] {
+    width: 13px !important;
+    height: 13px !important;
+  }
+  .addGroupBtn {
+    padding: 7px 9px !important;
+    font-size: 0.75rem !important;
+  }
+  .inlineLink {
+    padding: 3px 4px !important;
+    font-size: 0.82rem !important;
+  }
+  .note { font-size: 0.72rem !important; }
+  .optionRow {
+    padding: 5px 3px !important;
+  }
+  .optionRow span {
+    font-size: 0.8rem !important;
+  }
+  .optionRow input[type="checkbox"],
+  .optionRow input[type="radio"] {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  .optionRowSpace {
+    padding: 5px 3px !important;
+  }
+  .optionRowSpace span {
+    font-size: 0.8rem !important;
+  }
+  .splitSummary {
+    font-size: 0.75rem !important;
+  }
+  .labelAndInputs { 
+    grid-template-columns: 52px 1fr !important; 
+    gap: 8px !important; 
+    margin: 6px 4px !important; 
+  }
+  .labelTile { 
+    width: 44px !important; 
+    height: 44px !important; 
+    font-size: 18px !important; 
+  }
+  .labelTile img { width: 26px !important; height: 26px !important; }
+}
+

@@ -38,6 +38,22 @@ export const getAllExpenses = async (groupId) => {
   }
   return res.json();
 };
+
+// Get all expenses for the logged-in user (from all groups and direct expenses)
+export const getAllUserExpenses = async () => {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${TESTING_URL}/expenses/all-expenses`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) {
+    throw new Error("failed to fetch user expenses");
+  }
+  return res.json();
+};
 export const getExpense = async (id) => {
   const token = localStorage.getItem("token");
   const exp = await fetch(`${TESTING_URL}/expenses/${id}`, {

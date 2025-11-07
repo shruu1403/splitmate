@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { logoutUser } from "../api/auth";
-import { acceptInvite } from "../api/invite";
 
 export const AuthContext = createContext();
 
@@ -15,14 +14,20 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        console.log("Decoded token:", jwtDecode(token));
-
-        setUser({
-          _id: decoded.userID,
-          name: decoded.name,
-          email: decoded.email,
-        });
-        localStorage.setItem("token", token);
+        // Expiry guard: consider token invalid if expired
+        if (decoded?.exp && decoded.exp * 1000 < Date.now()) {
+          console.warn("JWT expired; clearing session");
+          setUser(null);
+          localStorage.removeItem("token");
+        } else {
+          console.log("Decoded token:", decoded);
+          setUser({
+            _id: decoded.userID,
+            name: decoded.name,
+            email: decoded.email,
+          });
+          localStorage.setItem("token", token);
+        }
       } catch (err) {
         console.error("Invalid token:", err);
         setUser(null);
@@ -35,37 +40,15 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, [token]);
 
-  // 🔑 NEW: Check for pending invite after login
-  // 🔑 Handle pending invite after login
+  // 🔑 Handle pending invite after login by redirecting to AcceptInvite route
   useEffect(() => {
-    const handlePendingInvite = async () => {
-      if (!loading && user?._id) {
-        const pendingInvite = localStorage.getItem("pendingInvite");
-        if (pendingInvite) {
-          try {
-            console.log(
-              "🔄 Resuming pending invite acceptance:",
-              pendingInvite
-            );
-            await acceptInvite({ token: pendingInvite });
-            alert("Invite accepted successfully!");
-            localStorage.removeItem("pendingInvite");
-            if (res.groupId) {
-              window.location.href = `/groups/${res.groupId}`;
-            } else {
-              window.location.href = "/friends";
-            }
-          } catch (err) {
-            console.error("❌ Error resuming invite:", err);
-            localStorage.removeItem("pendingInvite");
-            alert("Error accepting invite");
-            window.location.href = "/dashboard";
-          }
-        }
+    if (!loading && user?._id) {
+      const pendingInvite = localStorage.getItem("pendingInvite");
+      if (pendingInvite) {
+        // Let AcceptInvite page handle acceptance and alerts exactly once
+        window.location.replace(`/invite/accept?token=${encodeURIComponent(pendingInvite)}`);
       }
-    };
-
-    handlePendingInvite();
+    }
   }, [user, loading]);
 
   const login = (newToken) => {

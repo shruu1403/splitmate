@@ -1,14 +1,19 @@
 .content {
-  margin-left: 220px; /* sidebar space */
-  padding: 1.5rem;
+  margin-left: 280px; 
+  padding: 1.23rem 1.4rem;
   flex: 1;
-  background: #f9fafb;
+  background: #D3D9D4; 
+  color: #212A31;
   overflow-y: auto;
+  min-height: calc(100vh - 56px);
+  /* border:10px solid yellow */
+  font-family:  "Inter", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 @media (max-width: 768px) {
   .content {
     margin-left: 0; /* full width when sidebar hidden */
-    padding: 1rem;
+    /* return to normal padding; toggle sits above headings now */
+    padding: 1rem 1rem 1.25rem;
   }
 }

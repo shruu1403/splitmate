@@ -8,41 +8,61 @@
   justify-content: center;
   align-items: center;
   z-index: 2000;
+  /* font-family: Arial, Helvetica, sans-serif; */
 }
 
 .modal {
-  background: #fff;
-  width: 420px;
+  background: white;
+  width: 400px;
   max-width: 95%;
   border-radius: 12px;
-  padding: 20px 24px;
-  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.2);
+  padding: 0px 20px 10px 20px;
+  box-shadow: 0px 18px 40px rgba(0, 0, 0, 0.25);
   animation: fadeIn 0.25s ease-in-out;
   margin: 0 auto;
   z-index: 2100;
   position: relative;
+  /* border:10px solid */
 }
 
 /* Form layout */
 .form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 9px;
+  /* border: 1px solid red; */
 }
 
 .form h2 {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #333;
+  /* color: #0f172a; */
+  /* padding: 0.7rem; */
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 5px;
 }
 
 .form h3 {
-  margin: 10px 0 4px;
+  margin: 0px 0 4px;
   font-size: 1.05rem;
   font-weight: 600;
   color: #444;
+  /* border: 1px solid red; */
 }
+
+
+.header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 15px;
+  margin: 0 -20px 0 -20px; 
+  background: rgb(66, 85, 103); /* navbar color */
+  color: #D3D9D4;
+  border-radius: 12px 12px 0 0; /* rounded top corners */
+  border-bottom: 1px solid rgba(116, 141, 146, 0.22);
+}
+
+
 
 /* Labels */
 label {
@@ -51,13 +71,16 @@ label {
   font-size: 0.95rem;
   color: #333;
   gap: 4px;
+  /* border: 1px solid red; */
+
 }
 
 /* Input fields */
 input {
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  width: 270px;
+  border: 1px solid #cbd5e1;
   font-size: 0.95rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -65,7 +88,7 @@ input {
 input:focus {
   outline: none;
   border-color: #4cafef;
-  box-shadow: 0 0 4px rgba(76, 175, 239, 0.4);
+  box-shadow: 0 0 0 4px rgba(76, 175, 239, 0.15);
 }
 
 /* Each member row */
@@ -73,29 +96,89 @@ input:focus {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 8px;
+  /* border: 8px solid pink; */
+
 }
 
 .memberRow input {
   flex: 1;
 }
 
-.memberRow button {
-  background: transparent;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  color: #888;
-  transition: color 0.2s;
+.rowActions {
+  display: flex;
+  gap: 6px;
 }
 
-.memberRow button:hover {
-  color: #e74c3c;
+.rowRemove {
+  background: transparent;
+  border: none;
+  width: 39px;
+  height: 39px;
+  border-radius: 9999px;
+  font-size: 1.65rem;
+  cursor: pointer;
+  color: red;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+}
+
+.rowRemove:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.rowRemove:active {
+  transform: scale(0.96);
+}
+
+/* Selected member chip */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  border-radius: 9999px;
+  max-width: 100%;
+}
+
+.chipLocked {
+  background: #eef2ff;
+  border-color: #e0e7ff;
+}
+
+.chipText {
+  font-weight: 600;
+}
+
+.chipRemove {
+  background: transparent;
+  border: none;
+  color: red;
+  font-size: 1rem;
+  width: 32px;
+  height: 22px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+}
+
+.chipRemove:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.chipRemove:active {
+  transform: scale(0.95);
 }
 
 /* Suggestions dropdown */
 .suggestions {
   position: absolute;
-  top: 100%; /* appears right below input */
+  top: 100%;
+  /* appears right below input */
   left: 0;
   right: 0;
   background: #fff;
@@ -105,8 +188,10 @@ input:focus {
   margin-top: 4px;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 2200; /* Always on top */
+  z-index: 2200;
+  /* Always on top */
 }
+
 .suggestions div {
   padding: 8px 12px;
   cursor: pointer;
@@ -117,60 +202,197 @@ input:focus {
   background: #f5f5f5;
 }
 
-/* Add person button */
-.form > button[type="button"] {
+/* Add member button */
+.addMemberBtn {
   align-self: flex-start;
-  padding: 6px 10px;
-  border: none;
-  background: #f0f0f0;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  color: rgba(2, 2, 63, 0.748);
+  transition: background 0.2s, border-color 0.2s;
 }
 
-.form > button[type="button"]:hover {
-  background: #e2e2e2;
+.addMemberBtn:hover {
+  background: #eef2ff;
+  border-color: #dbeafe;
 }
 
 /* Action buttons (Save / Cancel) */
 .actions {
   display: flex;
-  justify-content: flex-end;
+  /* justify-content: flex-end; */
+  justify-content: center;
+  align-items: center;
   gap: 10px;
   margin-top: 10px;
 }
 
 .actions button {
-  padding: 8px 16px;
+  /* padding: 14px 18px; */
+  padding: 9px 14px;
+
   border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.99rem;
+  font-weight: 500;
   cursor: pointer;
   border: none;
   transition: background 0.2s;
 }
 
-/* Save button */
-.actions button[type="submit"] {
-  background: #4cafef;
+.btnPrimary {
+  background: rgb(21, 157, 182);
   color: #fff;
 }
 
-.actions button[type="submit"]:hover {
+.btnPrimary:hover {
   background: #3a9cd8;
 }
 
-/* Cancel button */
-.actions button[type="button"] {
-  background: #f0f0f0;
-  color: #333;
+.btnOutline {
+  background: #e7e7e9;
+  color: #111827;
+  border: 1px solid #e5e7eb;
 }
 
-.actions button[type="button"]:hover {
-  background: #e2e2e2;
+.btnOutline:hover {
+  background: #ddd;
 }
 
+/* Invite options block */
+.inviteOptions {
+  margin-top: 4px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.inviteOptions h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.inviteChecks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 24px;
+  align-items: center;
+}
+
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.checkboxLabel input {
+  width: 16px;
+  height: 16px;
+}
+
+.hint {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+/* Toast inside modal */
+.modalToast {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  background: rgba(17, 24, 39, 0.95);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 520px) {
+  .inviteChecks {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive: small screens */
+@media (max-width: 768px) {
+  .modal {
+    width: 94vw;
+    max-width: 94vw;
+    padding: 18px 16px;
+  }
+
+  input {
+    width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .form h2 {
+    font-size: 1.3rem;
+  }
+
+  .form h3 {
+    font-size: 1rem;
+  }
+
+  .memberRow {
+    gap: 6px;
+  }
+}
+
+/* Modal top-right close button */
+.closeModalBtn {
+  position: absolute;
+  top: 25px;
+  right: 24px;
+  width: 15px;
+  height: 15px;
+  /* border-radius: 9999px; */
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 1.75rem;
+  /* line-height: 1; */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color:white;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+}
+
+/* .closeModalBtn:hover {
+  background: #f3f4f6;
+  color: #111827;
+} */
+
+.closeModalBtn:active {
+  transform: scale(0.96);
+}
+
+.closeModalBtn:focus-visible {
+  outline: 2px solid #4cafef;
+  outline-offset: 2px;
+}
 
 
 /* Animations */
@@ -179,8 +401,224 @@ input:focus {
     opacity: 0;
     transform: translateY(-12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .modal {
+    width: 88vw !important;
+    max-width: 88vw !important;
+    padding: 0 14px 10px 14px !important;
+  }
+  
+  .header {
+    padding: 8px 12px !important;
+    margin: 0 -14px 0 -14px !important;
+    font-size: 0.95rem !important;
+  }
+  
+  .form {
+    gap: 8px !important;
+  }
+  
+  .form h2 {
+    font-size: 1rem !important;
+    margin: 4px 0 !important;
+  }
+  
+  .form h3 {
+    font-size: 0.9rem !important;
+    margin: 0px 0 0px !important;
+  }
+  
+  input {
+    width: 100% !important;
+    font-size: 0.85rem !important;
+    padding: 8px 10px !important;
+  }
+  
+  .btnPrimary,
+  .btnOutline {
+    font-size: 0.85rem !important;
+    padding: 8px 12px !important;
+  }
+  
+  .actions {
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+  
+  .chip {
+    font-size: 0.82rem !important;
+    padding: 5px 8px !important;
+  }
+  
+  .memberRow {
+    gap: 6px !important;
+    margin-bottom: 6px !important;
+  }
+  
+  label {
+    font-size: 0.85rem !important;
+    gap: 3px !important;
+  }
+  
+  .addMemberBtn {
+    font-size: 0.82rem !important;
+    padding: 7px 10px !important;
+  }
+  
+  .inviteOptions {
+    padding: 8px 10px !important;
+    margin-top: 6px !important;
+  }
+  
+  .inviteOptions h4 {
+    font-size: 0.88rem !important;
+    margin-bottom: 6px !important;
+  }
+  
+  .checkboxLabel {
+    font-size: 0.85rem !important;
+  }
+  
+  .hint {
+    font-size: 0.78rem !important;
+    margin-top: 6px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .overlay{
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .modal {
+    width: 92vw !important;
+    max-width: 92vw !important;
+    padding: 0 10px 8px 10px !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+  
+  .header {
+    padding: 7px 10px !important;
+    margin: 0 -10px 8px -10px !important;
+    font-size: 0.88rem !important;
+  }
+  
+  .form {
+    gap: 6px !important;
+  }
+  
+  .form h2 {
+    font-size: 0.92rem !important;
+    margin: 3px 0 !important;
+  }
+  
+  .form h3 {
+    font-size: 0.85rem !important;
+    margin: 0px 0 0px !important;
+  }
+  
+  label {
+    font-size: 0.8rem !important;
+    gap: 2px !important;
+  }
+  
+  input {
+    width: 100% !important;
+    font-size: 0.8rem !important;
+    padding: 7px 9px !important;
+  }
+  
+  .btnPrimary,
+  .btnOutline {
+    font-size: 0.8rem !important;
+    padding: 8px 10px !important;
+    flex: 1 !important;
+  }
+  
+  .actions {
+    flex-direction: row !important;
+    gap: 6px !important;
+    margin-top: 6px !important;
+  }
+  
+  .chip {
+    font-size: 0.76rem !important;
+    padding: 4px 7px !important;
+    gap: 6px !important;
+  }
+  
+  .chipRemove {
+    font-size: 0.85rem !important;
+    width: 26px !important;
+    height: 18px !important;
+  }
+  
+  .rowRemove {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 1.3rem !important;
+  }
+  
+  .memberRow {
+    gap: 5px !important;
+    margin-bottom: 5px !important;
+  }
+  
+  .closeModalBtn {
+    top: 14px !important;
+    right: 18px !important;
+    font-size: 1.4rem !important;
+  }
+  
+  .addMemberBtn {
+    font-size: 0.76rem !important;
+    padding: 6px 9px !important;
+  }
+  
+  .inviteOptions {
+    padding: 7px 8px !important;
+    margin-top: 5px !important;
+    border-radius: 8px !important;
+  }
+  
+  .inviteOptions h4 {
+    font-size: 0.82rem !important;
+    margin-bottom: 5px !important;
+  }
+  
+  .inviteChecks {
+    gap: 6px 16px !important;
+  }
+  
+  .checkboxLabel {
+    font-size: 0.78rem !important;
+    gap: 6px !important;
+  }
+  
+  .checkboxLabel input {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  
+  .hint {
+    font-size: 0.72rem !important;
+    margin-top: 5px !important;
+  }
+  
+  .suggestions {
+    max-height: 150px !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .suggestions div {
+    padding: 6px 10px !important;
   }
 }

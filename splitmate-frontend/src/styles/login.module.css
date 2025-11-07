@@ -1,28 +1,347 @@
+/* --- Split Layout for Login Page --- */
+.splitContainer {
+   display: flex;
+  min-height: 100vh;
+  width: 100vw;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  padding: 60px 120px 60px 120px;
+  background-color: rgb(147, 218, 204);
+}
+.leftPanel {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  /* ✨ Background image setup */
+  background-image: url("../assets/images/background.png"); /* <-- replace with your image path */
+  background-size: cover;        /* makes image fill the panel */
+  background-position: center;   /* centers it nicely */
+  background-repeat: no-repeat;  /* prevents tiling */
+}
+
+/* Optional: gradient overlay on top of image */
+.leftPanel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* background: linear-gradient(135deg, rgba(0,230,212,0.4), rgba(0,168,232,0.4)); */
+  z-index: 1; /* stays below logo */
+}
+
+
+
+
+
+.logoBox {
+  /* background: #1a2a3a; */
+  background: rgb(51, 65, 91);
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  padding: 20px 40px;
+  color: #00e6d4;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  height: fit-content;
+}
+
+
+
+.logoImg {
+  width: 170px;
+  height: 170px;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.15));
+}
+
+.rightPanel {
+  flex: 1.5;
+  background: rgb(51, 65, 91);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 320px;
+}
+
+.formCard {
+  /* background: #23232a; */
+  /* border-radius: 1.25rem; */
+  /* box-shadow: 0 6px 32px rgba(0,0,0,0.18); */
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  min-width: 320px;
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.formTitle {
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.6px;
+}
+
+.formSubtitle {
+  color: #a5b4fc;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.5px;
+}
+/* Tablets and medium screens */
+@media (max-width: 900px) {
+  .splitContainer {
+    flex-direction: column;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  .leftPanel {
+    min-height: 35vh;
+    width: 100%;
+    flex: 0 0 35vh;
+    background-position: center top;
+  }
+
+  .leftPanel::before {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .logoBox {
+    padding: 18px 36px;
+    z-index: 2;
+  }
+
+  .logoImg {
+    width: 130px;
+    height: 130px;
+  }
+
+  .rightPanel {
+    flex: 1;
+    width: 100%;
+    min-height: 65vh;
+    padding: 30px 20px;
+  }
+
+  .formCard {
+    padding: 2rem 1.5rem 1.75rem;
+    max-width: 500px;
+  }
+
+  .formTitle {
+    font-size: 1.35rem;
+  }
+
+  .formSubtitle {
+    font-size: 0.88rem;
+  }
+
+  .form {
+    gap: 1.5rem;
+  }
+
+  .inputField,
+  .button,
+  .googleBtn {
+    width: 100%;
+  }
+
+  .orContainer {
+    margin: 1rem 0;
+  }
+}
+
+/* Small tablets and large phones */
+@media (max-width: 640px) {
+  .splitContainer {
+    padding: 0;
+  }
+
+  .leftPanel {
+    min-height: 32vh;
+    flex: 0 0 32vh;
+  }
+
+  .logoBox {
+    padding: 14px 28px;
+  }
+
+  .logoImg {
+    width: 100px;
+    height: 100px;
+  }
+
+  .rightPanel {
+    min-height: 68vh;
+    padding: 25px 18px;
+  }
+
+  .formCard {
+    padding: 1.75rem 1.25rem 1.5rem;
+    max-width: 100%;
+  }
+
+  .formTitle {
+    font-size: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .formSubtitle {
+    font-size: 0.84rem;
+    margin-bottom: 1.3rem;
+  }
+
+  .form {
+    gap: 1.35rem !important;
+  }
+
+  .inputField {
+    font-size: 0.88rem !important;
+    padding: 0.7rem 0.75rem !important;
+  }
+
+  .passwordWrapper .toggleIcon {
+    right: 12px !important;
+  }
+
+  .button {
+    font-size: 0.9rem !important;
+    padding: 0.72rem !important;
+    width: 100% !important;
+  }
+
+  .googleBtn {
+    font-size: 0.9rem !important;
+    padding: 0.7rem !important;
+    width: 100% !important;
+  }
+
+  .googleBtn img {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  .orContainer {
+    margin: 0.85rem 0 !important;
+  }
+
+  .orContainer span {
+    font-size: 0.86rem !important;
+  }
+
+  .link {
+    font-size: 0.83rem !important;
+  }
+}
+
+/* Mobile phones - portrait */
+@media (max-width: 480px) {
+  .splitContainer {
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  .leftPanel {
+    min-height: 30vh;
+    flex: 0 0 28vh;
+    background-size: cover;
+  }
+
+  .logoBox {
+    padding: 12px 24px;
+  }
+
+  .logoImg {
+    width: 85px;
+    height: 85px;
+  }
+
+  .rightPanel {
+    flex: 1;
+    min-height: 72vh;
+    padding: 22px 16px;
+  }
+
+  .formCard {
+    padding: 1.5rem 1rem 1.25rem;
+  }
+
+  .formTitle {
+    font-size: 1.15rem !important;
+    margin-bottom: 0.35rem !important;
+    letter-spacing: 0.4px !important;
+    margin-top: -30px !important;
+  }
+
+  .formSubtitle {
+    font-size: 0.8rem !important;
+    margin-bottom: 1.15rem !important;
+    letter-spacing: 0.3px !important;
+  }
+
+  .form {
+    gap: 1.5rem !important;
+  }
+
+  .inputField {
+    font-size: 0.86rem !important;
+    padding: 0.65rem 0.7rem !important;
+  }
+
+  .passwordWrapper .toggleIcon {
+    right: 10px !important;
+    font-size: 1rem !important;
+  }
+
+  .button {
+    font-size: 0.88rem !important;
+    padding: 0.68rem !important;
+    width: 100% !important;
+  }
+
+  .googleBtn {
+    font-size: 0.88rem !important;
+    padding: 0.65rem !important;
+    width: 100% !important;
+  }
+
+  .googleBtn img {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .orContainer {
+    margin: 0.75rem 2.75rem !important;
+  }
+
+  .orContainer span {
+    font-size: 0.82rem !important;
+    margin: 0 0.4rem !important;
+  }
+
+  .link {
+    font-size: 0.83rem !important;
+    margin-top: 0.65rem !important;
+  }
+
+  .error {
+    font-size: 0.81rem !important;
+    padding: 0.45rem !important;
+  }
+}
 /* Login.module.css */
 
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 1rem;
-  background: #f0f4f8;
-  font-family: "Inter", sans-serif;
-}
 
-.card {
-  background-color: #ffffff;
-  padding: 1.5rem 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  width: 100%;
-  max-width: 400px;
-  transition: transform 0.2s ease-in-out;
-}
-
-.card:hover {
-  transform: translateY(-3px);
-}
 
 .title {
   font-size: 1.5rem;
@@ -36,7 +355,7 @@
   background-color: #fee2e2;
   color: #b91c1c;
   padding: 0.5rem;
-  border-radius: 0.5rem;
+  /* border-radius: 0.5rem; */
   text-align: center;
   margin-bottom: 1rem;
   font-size: 0.85rem;
@@ -45,37 +364,54 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.75rem;
 }
 
 .inputField {
   padding: 0.65rem 0.75rem;
+  width: 320px;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
+  border-radius: 0rem;
   font-size: 0.9rem;
-  color: #111827;
+  color: white;
   transition: border-color 0.2s;
 }
 
-.inputField:focus {
-  border-color: #3b82f6;
-  outline: none;
+
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+
+.toggleIcon {
+  position: absolute;
+  right: 12px;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s ease;
+}
+
+.toggleIcon:hover {
+  color: #00c2d1;
 }
 
 .button {
   padding: 0.65rem;
-  background-color: #3b82f6;
+  background-color: rgb(30, 213, 185);
   color: #ffffff;
-  border-radius: 0.5rem;
+  /* border-radius: 0.5rem; */
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
   border: none;
+  width: 320px;
   transition: background-color 0.2s, transform 0.1s;
 }
 
 .button:hover:not(:disabled) {
-  background-color: #2563eb;
+  /* background-color: #2563eb; */
   transform: scale(1.02);
 }
 
@@ -87,7 +423,9 @@
 .orContainer {
   display: flex;
   align-items: center;
-  margin: 1rem 0;
+  justify-content: center;
+  margin: 1rem 5.5rem;
+  
 }
 
 .orContainer hr {
@@ -98,7 +436,7 @@
 .orContainer span {
   margin: 0 0.5rem;
   color: #6b7280;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .googleBtn {
@@ -107,18 +445,18 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.65rem;
-  background-color: #ef4444;
-  color: white;
-  border-radius: 0.5rem;
+  background-color: white;
+  color:rgba(0, 0, 0, 0.533);
+  /* border-radius: 0.5rem; */
   font-size: 0.95rem;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); */
+  width: 320px;
   transition: transform 0.1s ease-in-out, background-color 0.2s;
 }
 
 .googleBtn:hover {
-  background-color: #dc2626;
   transform: scale(1.02);
 }
 

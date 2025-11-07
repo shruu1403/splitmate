@@ -34,6 +34,7 @@ expenseRouter.post("/add", auth, async (req, res) => {
       description,
       amount,
       paidBy,
+      payers, // optional: [{ user, amount }]
       splitAmong,
       date,
     } = req.body;
@@ -71,13 +72,39 @@ expenseRouter.post("/add", auth, async (req, res) => {
         .send({ msg: "Either groupId or participants required" });
     }
 
+    // Validate payer(s)
+    if ((!paidBy && !(Array.isArray(payers) && payers.length > 0)) || (paidBy && Array.isArray(payers) && payers.length > 0)) {
+      // Require either single paidBy OR payers[], but not both
+      return res.status(400).send({ msg: "Provide either 'paidBy' or 'payers' (not both)." });
+    }
+
+    let normalizedPayers = [];
+    if (Array.isArray(payers) && payers.length > 0) {
+      // Validate amounts and sum
+      let sum = 0;
+      for (const p of payers) {
+        if (!p.user || typeof p.amount !== 'number') {
+          return res.status(400).send({ msg: "Each payer must include 'user' and numeric 'amount'" });
+        }
+        if (p.amount < 0) {
+          return res.status(400).send({ msg: "Payer amount cannot be negative" });
+        }
+        sum += p.amount;
+      }
+      if (Math.abs(sum - Number(amount)) > 0.01) {
+        return res.status(400).send({ msg: "Sum of payer amounts must equal total amount" });
+      }
+      normalizedPayers = payers.map(p => ({ user: p.user, amount: p.amount }));
+    }
+
     // Create expense
     const expense = new expenseModel({
       groupId: groupId || null, // null for friend expenses
       participants: participants || undefined, // for friend expenses
       description,
       amount,
-      paidBy,
+      paidBy: paidBy || undefined,
+      payers: normalizedPayers.length ? normalizedPayers : undefined,
       splitAmong,
       date: date || new Date(),
       createdBy: req.userID,
@@ -89,6 +116,7 @@ expenseRouter.post("/add", auth, async (req, res) => {
     // Populate the expense data
     await expense.populate([
       { path: "paidBy", select: "name email" },
+      { path: "payers.user", select: "name email" },
       { path: "splitAmong.user", select: "name email" },
     ]);
 
@@ -140,16 +168,22 @@ expenseRouter.get("/all-expenses", auth, async (req, res) => {
     const userId = req.userID;
     const expenses = await expenseModel
       .find({
-        participants: userId,
+        $or: [
+          { participants: userId }, // Direct expenses
+          { "splitAmong.user": userId } // Group expenses and any expense where user has a share
+        ],
         isDeleted: false,
       })
-      .populate("paidBy", "name email")
+  .populate("paidBy", "name email")
+  .populate("payers.user", "name email")
       .populate("createdBy", "name email")
       .populate("splitAmong.user", "name email")
-      .populate("groupId", "name"); // 👈 so group name comes through
+      .populate("groupId", "name") // so group name comes through
+      .sort({ createdAt: -1 }); // Sort by newest first
 
     res.status(200).send({ expenses });
   } catch (error) {
+    console.error("Error fetching user expenses:", error);
     res.status(500).send({ msg: "server error fetching expenses" });
   }
 });
@@ -159,10 +193,12 @@ expenseRouter.get("/group/:groupId", auth, async (req, res) => {
   try {
     const expenses = await expenseModel
       .find({ groupId: req.params.groupId, isDeleted: false })
-      .populate("paidBy", "name email")
+  .populate("paidBy", "name email")
+  .populate("payers.user", "name email")
       .populate("createdBy", "name email")
       .populate("splitAmong.user", "name email")
-      .populate("groupId", "name");
+      .populate("groupId", "name")
+      .sort({ createdAt: -1 }); // Sort by newest first
     res.status(200).send({ expenses });
   } catch (error) {
     res.status(500).send({ msg: "server error fetching expenses" });
@@ -176,7 +212,8 @@ expenseRouter.get("/:id", auth, async (req, res) => {
       .findById(req.params.id)
       .populate("paidBy", "name email")
       .populate("createdBy", "name email")
-      .populate("splitAmong.user", "name email");
+      .populate("splitAmong.user", "name email")
+      .populate("groupId", "name"); // Add group population
     if (!expense) return res.status(404).send({ msg: "expense not found" });
     res.status(200).send({ expense });
   } catch (error) {
@@ -189,48 +226,67 @@ expenseRouter.delete("/:id", auth, async (req, res) => {
     const expense = await expenseModel.findById(req.params.id);
     if (!expense) return res.status(404).send({ msg: "Expense not found" });
 
+    const isPayer = Array.isArray(expense.payers) && expense.payers.some(p => p.user.toString() === req.userID);
     if (
-      expense.paidBy.toString() !== req.userID &&
-      expense.createdBy.toString() !== req.userID
+      (!expense.paidBy || expense.paidBy.toString() !== req.userID) &&
+      expense.createdBy.toString() !== req.userID &&
+      !isPayer
     ) {
       return res
         .status(403)
         .send({ msg: "Not authorized to delete this expense" });
     }
-    expense.isDeleted = true;
-    await expense.save();
-
-    const group = await groupModel.findById(expense.groupId, "members name");
+    
+    // Use findByIdAndUpdate to avoid full validation on older expenses
+    await expenseModel.findByIdAndUpdate(req.params.id, { isDeleted: true });
 
     const user = await userModel.findById(req.userID);
 
-    // Notify members
-    await notifyGroupMembers({
-      group,
-      actorId: req.userID,
-      type: "expense_deleted",
-      message: `${user.name} deleted an expense in ${group.name}`,
-    });
+    // Handle group expenses
+    if (expense.groupId) {
+      const group = await groupModel.findById(expense.groupId, "members name");
+      
+      if (group) {
+        // Notify group members
+        await notifyGroupMembers({
+          group,
+          actorId: req.userID,
+          type: "expense_deleted",
+          message: `${user.name} deleted an expense in ${group.name}`,
+        });
 
-    //recent activity
-    await activityModel.create({
-      type: "expense_deleted",
-      user: req.userID,
-      group: expense.groupId,
-      expense: expense._id,
-      description: `${user.name} deleted an expense in ${group.name}  `,
-    });
-    // ✅ Emit socket event (real-time update to group members)
-    const { io } = require("../index");
-    io.to(expense.groupId.toString()).emit("expense_deleted", {
-      type: "expense_deleted",
-      groupId: expense.groupId,
-      expense,
-      message: `${user.name} deleted an expense in ${group.name}`,
-    });
+        //recent activity
+        await activityModel.create({
+          type: "expense_deleted",
+          user: req.userID,
+          group: expense.groupId,
+          expense: expense._id,
+          description: `${user.name} deleted an expense in ${group.name}`,
+        });
+
+        // ✅ Emit socket event (real-time update to group members)
+        const { io } = require("../index");
+        io.to(expense.groupId.toString()).emit("expense_deleted", {
+          type: "expense_deleted",
+          groupId: expense.groupId,
+          expense,
+          message: `${user.name} deleted an expense in ${group.name}`,
+        });
+      }
+    } else {
+      // Handle direct expenses (friend-to-friend)
+      // Create activity for direct expense deletion
+      await activityModel.create({
+        type: "expense_deleted",
+        user: req.userID,
+        expense: expense._id,
+        description: `${user.name} deleted a direct expense`,
+      });
+    }
 
     res.status(200).send({ msg: "Expense deleted successfully" });
   } catch (err) {
+    console.error("Delete expense error:", err);
     res.status(500).send({ msg: "Error deleting expense" });
   }
 });
@@ -243,9 +299,12 @@ expenseRouter.get("/recent/deleted", auth, async (req, res) => {
         isDeleted: true,
         $or: [{ paidBy: req.userID }, { createdBy: req.userID }],
       })
-      .populate("paidBy", "name email")
+  .populate("paidBy", "name email")
+  .populate("payers.user", "name email")
       .populate("createdBy", "name email")
-      .populate("splitAmong.user", "name email");
+      .populate("splitAmong.user", "name email")
+      .populate("groupId", "name")
+      .sort({ updatedAt: -1 });
 
     res.status(200).send({ deletedExpenses: expenses });
   } catch (error) {
@@ -258,9 +317,11 @@ expenseRouter.patch("/restore/:id", auth, async (req, res) => {
     const expense = await expenseModel.findById(req.params.id);
     if (!expense) return res.status(404).send({ msg: "Expense not found" });
 
+    const isPayer = Array.isArray(expense.payers) && expense.payers.some(p => p.user.toString() === req.userID);
     if (
-      expense.paidBy.toString() !== req.userID &&
-      expense.createdBy.toString() !== req.userID
+      (!expense.paidBy || expense.paidBy.toString() !== req.userID) &&
+      expense.createdBy.toString() !== req.userID &&
+      !isPayer
     ) {
       return res
         .status(403)

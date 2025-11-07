@@ -11,7 +11,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { useSettlement } from "../context/SettlementContext";
 import { recordSettlement } from "../api/settlements";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 export default function Friends() {
   const { id } = useParams(); // get friend ID from route
@@ -115,7 +115,8 @@ export default function Friends() {
       setShowDeleteConfirm(false);
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete expense");
+      // alert("Failed to delete expense");
+      toast.error("Failed to delete expense");
     } finally {
       setDeletingExpenseId(null);
     }
@@ -294,7 +295,8 @@ export default function Friends() {
   const handleSettleUp = () => {
     const balance = calculateFriendBalance();
     if (balance <= 0) {
-      alert("No balance to settle!");
+      // alert("No balance to settle!");
+      toast.info("No balance to settle!");
       return;
     }
 
@@ -334,7 +336,8 @@ export default function Friends() {
   toast.success("Settlement has been recorded.");
     } catch (error) {
       console.error("Settlement failed:", error);
-      alert(error.message || "Settlement failed");
+      // alert(error.message || "Settlement failed");
+      toast.error(error.message || "Settlement failed");
     }
   };
 
@@ -502,7 +505,8 @@ export default function Friends() {
                           setFriend(data.friend);
                         } catch (error) {
                           console.error("Failed to record settlement:", error);
-                          alert(error.message || "Failed to record settlement");
+                          // alert(error.message || "Failed to record settlement");
+                          toast.error(error.message || "Failed to record settlement");
                         }
                       }}
                       style={{ marginLeft: '12px', whiteSpace: 'nowrap' }}

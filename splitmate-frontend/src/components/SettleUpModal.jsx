@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import styles from "../styles/settleUpModal.module.css";
+import { toast } from "react-toastify";
 
 const SettleUpModal = ({
   isOpen,
@@ -29,23 +30,24 @@ const SettleUpModal = ({
     const confirmHandler = onConfirm || onConfirmSettlement;
     if (!confirmHandler) {
       console.error("No confirmation handler provided");
-      alert("Configuration error. Please refresh and try again.");
+      toast.error("Configuration error. Please refresh and try again.");
       return;
     }
 
     if (!fromUser || !toUser || !amount) {
       console.error("Missing required settlement data:", { fromUser, toUser, amount });
-      alert("Missing settlement information. Please try again.");
+      toast.error("Missing settlement information. Please try again.");
       return;
     }
 
     setIsProcessing(true);
     try {
       await confirmHandler({ fromUser, toUser, amount, groupId, type }); // <-- pass data
+      toast.success("Settlement recorded");
       onClose();
     } catch (error) {
       console.error("Settlement failed:", error);
-      alert("Failed to record settlement. Please try again.");
+      toast.error("Failed to record settlement. Please try again.");
     } finally {
       setIsProcessing(false);
     }

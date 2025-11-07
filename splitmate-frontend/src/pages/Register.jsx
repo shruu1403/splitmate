@@ -5,6 +5,7 @@ import styles from "../styles/register.module.css";
 import googleLogo from "../assets/images/google logo.png";
 import { AuthContext } from "../context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -20,8 +21,10 @@ const [loading, setLoading] = useState(false);
 const { login } = useContext(AuthContext)
 
 const navigate = useNavigate();
+
 useEffect(() => {
-  const token = localStorage.getItem("token");
+  if (typeof window === "undefined") return;
+  const token = window.localStorage.getItem("token");
   if (token) {
     navigate("/dashboard", { replace: true });
   }
@@ -29,6 +32,7 @@ useEffect(() => {
 
 
 useEffect(() => {
+   if (typeof window === "undefined") return;
   const handleMessage = (event) => {
     // only accept from your backend
     // if (event.origin !== "http://localhost:8080") return;
@@ -64,7 +68,8 @@ const handleSubmit = async (e) => {
     const res = await registerUser(formData);
 
     if (res.msg === "user has been registered successfully") {
-      alert("Registration successful!");
+      // alert("Registration successful!");
+      toast.success("Registration successful!");
       navigate("/login"); // redirect to login
     } else {
       setError(res.msg || "Registration failed");

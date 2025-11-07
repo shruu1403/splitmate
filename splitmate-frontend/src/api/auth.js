@@ -17,23 +17,29 @@ export const loginUser = async (userData) => {
   });
   return res.json();
 };
-export const logoutUser = async () => {
-  const token = localStorage.getItem("token");
-  if (!token) return { msg: "No token found" };
-  try {
-      const res = await fetch(`${TESTING_URL}/users/logout`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if(!res.ok){
-    throw new Error("Failed to logout")
-  }
-  return res.json();
-  } catch (error) {
-    return {msg: error.message}
-  }
 
+export const logoutUser = async () => {
+  if (typeof window === "undefined") return { msg: "No token found" };
+
+  const token = window.localStorage.getItem("token");
+  if (!token) return { msg: "No token found" };
+
+  try {
+    const res = await fetch(`${TESTING_URL}/users/logout`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to logout");
+    }
+
+    return res.json();
+  } catch (error) {
+    return { msg: error.message };
+  }
 };
+

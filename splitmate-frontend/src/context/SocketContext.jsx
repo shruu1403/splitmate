@@ -16,46 +16,46 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const { user } = useContext(AuthContext);
-
   useEffect(() => {
-    if (user && user._id) {
-      // Create socket connection
-      const newSocket = 
-      // io('http://localhost:8080', {
-      io('https://splitmate-32de.onrender.com', {
-        auth: {
-          token: localStorage.getItem('token')
-        }
-      });
-
-      // Join user's room for personal notifications
-      newSocket.emit('join-user-room', user._id);
-
-      newSocket.on('connect', () => {
-        console.log('Connected to server');
-        setIsConnected(true);
-      });
-
-      newSocket.on('disconnect', () => {
-        console.log('Disconnected from server');
-        setIsConnected(false);
-      });
-
-      setSocket(newSocket);
-
-      // Cleanup on unmount
-      return () => {
-        newSocket.close();
-      };
-    } else {
-      // Clean up socket if user logs out
+    // If user not logged in → cleanup and exit
+    if (!user || !user._id) {
       if (socket) {
         socket.close();
         setSocket(null);
         setIsConnected(false);
       }
+      return;
     }
+
+    // ✅ Prevent running during Vercel build (server-side)
+    if (typeof window === "undefined") return;
+
+    // Create socket connection
+    const newSocket = io('https://splitmate-32de.onrender.com', {
+      auth: { token: localStorage.getItem('token') }
+    });
+
+    newSocket.emit('join-user-room', user._id);
+
+    newSocket.on('connect', () => {
+      console.log('Connected to server');
+      setIsConnected(true);
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('Disconnected from server');
+      setIsConnected(false);
+    });
+
+    setSocket(newSocket);
+
+    // Cleanup on unmount
+    return () => {
+      newSocket.close();
+    };
+
   }, [user]);
+
 
   const joinGroupRoom = (groupId) => {
     if (socket && groupId) {

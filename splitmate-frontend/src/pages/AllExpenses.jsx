@@ -7,6 +7,7 @@ import { getGroupSettlements } from "../api/settlements";
 import AddExpenseModal from "../components/AddExpense";
 import styles from "../styles/AllExpenses.module.css";
 import { useSettlement } from "../context/SettlementContext";
+import { toast } from "react-toastify";
 
 export default function AllExpenses() {
   const { refreshTrigger, isExpenseSettled: isGroupExpenseSettled, loadGroupSettlements } = useSettlement();
@@ -260,7 +261,8 @@ export default function AllExpenses() {
       setShowExpenseDetail(true);
     } catch (error) {
       console.error("Failed to fetch expense details:", error);
-      alert("Failed to load expense details");
+      // alert("Failed to load expense details");
+      toast.error("Failed to load expense details");
     }
   };
 
@@ -278,7 +280,8 @@ export default function AllExpenses() {
       setShowDeleteConfirm(false);
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete expense");
+      // alert("Failed to delete expense");
+      toast.error("Failed to delete expense");
     } finally {
       setDeletingExpenseId(null);
     }

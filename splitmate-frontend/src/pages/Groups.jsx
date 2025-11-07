@@ -14,7 +14,7 @@ import { useSettlement } from "../context/SettlementContext";
 import { getExpenseLabel } from "../utils/expenseLabelStore";
 import { getLabelByKey } from "../utils/labelCatalog";
 import { recordSettlement } from "../api/settlements";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 export default function Groups() {
   const { id: groupId } = useParams();
@@ -233,7 +233,8 @@ export default function Groups() {
     // Check if expense is settled before allowing deletion
     const expense = expenses.find(e => e._id === expenseId);
     if (expense && isExpenseSettled(expense)) {
-      alert("Cannot delete a settled expense. This expense has already been settled up.");
+      // alert("Cannot delete a settled expense. This expense has already been settled up.");
+      toast.info("Cannot delete a settled expense. This expense has already been settled up.");
       return;
     }
     setDeletingExpenseId(expenseId);
@@ -246,7 +247,8 @@ export default function Groups() {
     // Double-check if expense is settled
     const expense = expenses.find(e => e._id === deletingExpenseId);
     if (expense && isExpenseSettled(expense)) {
-      alert("Cannot delete a settled expense. This expense has already been settled up.");
+      toast.info("Cannot delete a settled expense. This expense has already been settled up.");
+      // alert("Cannot delete a settled expense. This expense has already been settled up.");
       setShowDeleteConfirm(false);
       setDeletingExpenseId(null);
       return;
@@ -258,7 +260,8 @@ export default function Groups() {
       setShowDeleteConfirm(false);
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete expense");
+      toast.error("Failed to delete expense");
+      // alert("Failed to delete expense");
     } finally {
       setDeletingExpenseId(null);
     }
@@ -295,7 +298,8 @@ export default function Groups() {
       navigate("/dashboard");
     } catch (err) {
       console.error("Error deleting group:", err);
-      alert(err.message || "Failed to delete group");
+      toast.error("Failed to delete group");
+      // alert(err.message || "Failed to delete group");
     }
   };
 
@@ -463,7 +467,8 @@ export default function Groups() {
       const { youOwe, youAreOwed } = calculateOverallBalance();
       
       if (youOwe === 0 && youAreOwed === 0) {
-        alert("No balances to settle!");
+        toast.info("No balances to settle!");
+        // alert("No balances to settle!");
         return;
       }
 
@@ -550,7 +555,8 @@ export default function Groups() {
       }
 
       if (settlementPromises.length === 0) {
-        alert("No settlements needed!");
+        toast.info("No settlements needed!");
+        // alert("No settlements needed!");
         return;
       }
 
@@ -564,7 +570,8 @@ export default function Groups() {
       
     } catch (error) {
       console.error("Failed to record offset settlement:", error);
-      alert(error.message || "Failed to record settlement");
+      toast.error("Failed to record settlement");
+      // alert(error.message || "Failed to record settlement");
     }
   };
 
@@ -600,8 +607,8 @@ export default function Groups() {
       } else {
         errorMsg += "Unknown error";
       }
-      
-      alert(errorMsg);
+      toast.error(errorMsg);
+      // alert(errorMsg);
       throw error;
     }
   };
@@ -833,7 +840,8 @@ export default function Groups() {
       setShowExpenseDetail(true);
     } catch (error) {
       console.error("Failed to fetch expense details:", error);
-      alert("Failed to load expense details");
+      toast.error("Failed to load expense details");
+      // alert("Failed to load expense details");
     }
   };
 

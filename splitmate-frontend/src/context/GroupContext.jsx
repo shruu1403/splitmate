@@ -25,6 +25,7 @@ export const GroupProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     loadGroups();
   }, []);
 

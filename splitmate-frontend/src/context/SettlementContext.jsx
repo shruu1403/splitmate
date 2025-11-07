@@ -98,28 +98,27 @@ export const SettlementProvider = ({ children }) => {
   }, [triggerRefresh]);
 
   // Listen for real-time settlement updates via Socket.io
-  useEffect(() => {
-    if (socket) {
-      const handleSettlementRecorded = (data) => {
-        console.log("🔔 Real-time settlement received:", data);
-        
-        // Add to recent settlements
-        setRecentSettlements(prev => [{
-          ...data,
-          timestamp: new Date(),
-        }, ...prev.slice(0, 9)]);
-        
-        // Trigger global refresh
-        triggerRefresh();
-      };
+ useEffect(() => {
+  if (typeof window === "undefined") return; // ✅ Prevent SSR issues
+  if (!socket) return;
 
-      socket.on("settlement_recorded", handleSettlementRecorded);
+  const handleSettlementRecorded = (data) => {
+    console.log("🔔 Real-time settlement received:", data);
 
-      return () => {
-        socket.off("settlement_recorded", handleSettlementRecorded);
-      };
-    }
-  }, [socket, triggerRefresh]);
+    setRecentSettlements(prev => [{
+      ...data,
+      timestamp: new Date(),
+    }, ...prev.slice(0, 9)]);
+
+    triggerRefresh();
+  };
+
+  socket.on("settlement_recorded", handleSettlementRecorded);
+
+  return () => {
+    socket.off("settlement_recorded", handleSettlementRecorded);
+  };
+}, [socket, triggerRefresh]);
 
   /**
    * Check if a specific expense has been settled

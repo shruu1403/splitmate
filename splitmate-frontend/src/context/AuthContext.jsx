@@ -40,16 +40,22 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, [token]);
 
-  // 🔑 Handle pending invite after login by redirecting to AcceptInvite route
-  useEffect(() => {
-    if (!loading && user?._id) {
-      const pendingInvite = localStorage.getItem("pendingInvite");
-      if (pendingInvite) {
-        // Let AcceptInvite page handle acceptance and alerts exactly once
-        window.location.replace(`/invite/accept?token=${encodeURIComponent(pendingInvite)}`);
-      }
+ useEffect(() => {
+  if (!loading && user?._id) {
+
+    // ✅ Prevent this from running during Vercel SSR build
+    if (typeof window === "undefined") return;
+
+    const pendingInvite = localStorage.getItem("pendingInvite");
+
+    if (pendingInvite) {
+      window.location.replace(
+        `/invite/accept?token=${encodeURIComponent(pendingInvite)}`
+      );
     }
-  }, [user, loading]);
+  }
+}, [user, loading]);
+
 
   const login = (newToken) => {
     setLoading(true);

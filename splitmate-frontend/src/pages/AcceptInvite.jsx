@@ -14,80 +14,82 @@ export default function AcceptInvite() {
   const abortRef = useRef(null);
 
   useEffect(() => {
+    // Stop this code from ever running during Vercel SSR
+    if (typeof window === "undefined") return;
+
     console.log("🔄 useEffect triggered, loading:", loading, "user:", user);
 
     if (loading) return;
 
     const token = searchParams.get("token");
-    console.log("🎯 Token from URL:", token); // <-- LOG HERE
+    console.log("🎯 Token from URL:", token);
 
     if (!token) {
-      console.warn("⚠️ No token in URL, redirecting to dashboard");
       navigate("/dashboard");
       return;
     }
 
     if (!user?._id) {
-      console.log("👤 No user logged in, saving pending invite:", token);
-      localStorage.setItem("pendingInvite", token);
+      window.localStorage.setItem("pendingInvite", token);
       navigate("/login");
       return;
     }
 
-  // ✅ If user is logged in, accept immediately
     const handleAccept = async () => {
       if (hasRun.current) return;
       hasRun.current = true;
+
       try {
-        // Create a controller so navigation/unmount cancels the request cleanly
         abortRef.current = new AbortController();
         const res = await acceptInvite({ token, signal: abortRef.current.signal });
-        localStorage.removeItem("pendingInvite");
+
+        window.localStorage.removeItem("pendingInvite");
+
         if (res && (res.groupId || res.msg)) {
-          // Pretty success toaster
           toast.success(
             res.groupId
               ? "Invite accepted! You’ve joined the group."
-              : "Invite accepted! You’re now connected.",
-            { id: "invite-accepted" }
+              : "Invite accepted! You’re now connected."
           );
+
           if (res.groupId) {
             navigate(`/groups/${res.groupId}`);
           } else {
-            // No specific friend route exists at "/friends"; redirect to dashboard
             navigate("/dashboard");
           }
         } else {
           throw new Error("Unexpected response");
         }
+
       } catch (err) {
-        console.error("❌ Error in accept:", err);
-        localStorage.removeItem("pendingInvite");
-        // Ignore benign cases (navigation abort, unauthenticated first hit, or browser "Failed to fetch")
+        window.localStorage.removeItem("pendingInvite");
+
         const msg = (err?.message || "").toLowerCase();
-        const isBenignAbort = err?.name === "AbortError" ||
-                              err?.code === "NO_AUTH" ||
-                              err?.code === "ABORTED_OR_NETWORK" ||
-                              err?.name === "TypeError" && msg.includes("failed to fetch") ||
-                              msg.includes("networkerror") ||
-                              msg.includes("load failed");
-        if (isBenignAbort) {
-          return;
+        const benign =
+          err?.name === "AbortError" ||
+          msg.includes("failed to fetch") ||
+          msg.includes("network") ||
+          msg.includes("load failed");
+
+        if (!benign) {
+          // Use toast instead of alert, which is not SSR-safe
+          toast.error(err?.message || "Error accepting invite");
         }
-        alert(err?.message || "Error accepting invite");
+
         navigate("/dashboard");
       }
     };
 
     handleAccept();
-    // Cleanup to ensure single run in StrictMode
+
     return () => {
       hasRun.current = hasRun.current;
       if (abortRef.current) {
-        try { abortRef.current.abort(); } catch {}
+        try { abortRef.current.abort(); } catch { }
       }
     };
   }, [searchParams, user, navigate, loading]);
+
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: 16 }}>

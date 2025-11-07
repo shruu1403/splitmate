@@ -9,6 +9,7 @@ import AddGroupModal from "../components/AddGroupModal";
 import { sendInvite } from "../api/invite";
 import { AuthContext } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
+import { toast } from "react-toastify";
 const Sidebar = ({ open, setOpen }) => {
   const [groups, setGroups] = useState([]);
   const [friends, setFriends] = useState([]);
@@ -148,14 +149,17 @@ const Sidebar = ({ open, setOpen }) => {
   // Invite Handlers
   const handleSendInvite = async () => {
     try {
-      if (!email) return alert("Please enter an email");
+      if (!email) {
+        toast.error("Please enter an email");
+        return;
+      }
       await sendInvite({ email, groupId: null });
-      alert("Invite sent!");
+      toast.success("Invite sent!");
       setEmail("");
-      await fetchFriends()
+      await fetchFriends();
     } catch (err) {
       console.error(err);
-      alert("Failed to send invite");
+      toast.error("Failed to send invite");
     }
   };
 
@@ -174,15 +178,15 @@ const Sidebar = ({ open, setOpen }) => {
   const handleDeleteGroup = async (groupId) => {
     try {
       await deleteGroup(groupId);
-      fetchGroups(); // Refresh groups list
+      fetchGroups();
       setDeleteConfirm({ show: false, group: null });
-      // If currently viewing the deleted group, redirect to dashboard
       if (window.location.pathname.includes(`/groups/${groupId}`)) {
         navigate('/dashboard');
       }
+      toast.success("Group deleted");
     } catch (err) {
       console.error("Error deleting group:", err);
-      alert(err.message || "Failed to delete group");
+      toast.error(err.message || "Failed to delete group");
     }
   };
   return (
@@ -405,7 +409,7 @@ const Sidebar = ({ open, setOpen }) => {
                     }
                   } catch (err) {
                     console.error('Error deleting friend:', err);
-                    alert(err.message || 'Failed to delete friend');
+                    toast.error(err.message || 'Failed to delete friend');
                   }
                 }}
               >

@@ -17,15 +17,21 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+ 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [navigate]);
+  if (typeof window === "undefined") return;
+
+  const token = window.localStorage.getItem("token");
+  if (token) {
+    navigate("/dashboard", { replace: true });
+  }
+}, [navigate]);
 
 
+
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const handleMessage = (event) => {
       // only accept from your backend
       // if (event.origin !== "http://localhost:8080") return;

@@ -11,6 +11,7 @@ import { Toaster } from "react-hot-toast";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+    {typeof window !== "undefined" ? (
     <BrowserRouter>
       <AuthProvider>
         <SocketProvider>
@@ -31,5 +32,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </SocketProvider>
       </AuthProvider>
     </BrowserRouter>
+     ) : null}
   </React.StrictMode>
 );

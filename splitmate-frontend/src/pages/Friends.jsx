@@ -11,7 +11,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { useSettlement } from "../context/SettlementContext";
 import { recordSettlement } from "../api/settlements";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 export default function Friends() {
   const { id } = useParams(); // get friend ID from route

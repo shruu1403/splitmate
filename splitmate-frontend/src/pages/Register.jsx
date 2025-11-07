@@ -5,7 +5,7 @@ import styles from "../styles/register.module.css";
 import googleLogo from "../assets/images/google logo.png";
 import { AuthContext } from "../context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 const Register = () => {
   const [formData, setFormData] = useState({

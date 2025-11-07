@@ -9,7 +9,7 @@ import AddGroupModal from "../components/AddGroupModal";
 import { sendInvite } from "../api/invite";
 import { AuthContext } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 const Sidebar = ({ open, setOpen }) => {
   const [groups, setGroups] = useState([]);
   const [friends, setFriends] = useState([]);

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import styles from "../styles/settleUpModal.module.css";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 const SettleUpModal = ({
   isOpen,

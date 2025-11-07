@@ -7,7 +7,7 @@ import { getGroupSettlements } from "../api/settlements";
 import AddExpenseModal from "../components/AddExpense";
 import styles from "../styles/AllExpenses.module.css";
 import { useSettlement } from "../context/SettlementContext";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 export default function AllExpenses() {
   const { refreshTrigger, isExpenseSettled: isGroupExpenseSettled, loadGroupSettlements } = useSettlement();

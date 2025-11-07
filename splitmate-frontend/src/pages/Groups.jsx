@@ -14,7 +14,7 @@ import { useSettlement } from "../context/SettlementContext";
 import { getExpenseLabel } from "../utils/expenseLabelStore";
 import { getLabelByKey } from "../utils/labelCatalog";
 import { recordSettlement } from "../api/settlements";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 export default function Groups() {
   const { id: groupId } = useParams();

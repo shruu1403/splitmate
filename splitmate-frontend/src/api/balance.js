@@ -1,4 +1,6 @@
-const TESTING_URL = 'http://localhost:8080/api';
+// const TESTING_URL = 'http://localhost:8080/api';
+const TESTING_URL = "https://splitmate-32de.onrender.com/api";
+
 
 // Get balance for a specific group
 export const getGroupBalance = async (groupId) => {

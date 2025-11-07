@@ -20,7 +20,9 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (user && user._id) {
       // Create socket connection
-      const newSocket = io('http://localhost:8080', {
+      const newSocket = 
+      // io('http://localhost:8080', {
+      io('https://splitmate-32de.onrender.com', {
         auth: {
           token: localStorage.getItem('token')
         }

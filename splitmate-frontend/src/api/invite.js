@@ -1,4 +1,6 @@
-const TESTING_URL = "http://localhost:8080/api";
+// const TESTING_URL = "http://localhost:8080/api";
+const TESTING_URL = "https://splitmate-32de.onrender.com/api";
+
 
 // Send Invite (Friend or Group)
 export const sendInvite = async ({ email, groupId, alsoAddToFriends }) => {

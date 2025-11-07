@@ -31,7 +31,8 @@ useEffect(() => {
 useEffect(() => {
   const handleMessage = (event) => {
     // only accept from your backend
-    if (event.origin !== "http://localhost:8080") return;
+    // if (event.origin !== "http://localhost:8080") return;
+    if (event.origin !== "https://splitmate-32de.onrender.com") return;
 
     if (event.data.token) {
       // save token and login
@@ -77,7 +78,8 @@ const handleSubmit = async (e) => {
 
 const handleGoogleSignup = () => {
   window.open(
-    "http://localhost:8080/api/auth/google",
+    // "http://localhost:8080/api/auth/google",
+    "https://splitmate-32de.onrender.com/api/auth/google",
     "_blank",
     "width=500,height=600"
   );

@@ -20,7 +20,8 @@ authRouter.get(
         <body>
           <script>
             // Send token to opener window
-            window.opener.postMessage({ token: "${token}" }, "http://localhost:5173","https://splitmate-sepia.vercel.app","https://mysplitmate.netlify.app");
+            window.opener.postMessage({ token: "${token}" },
+            "https://splitmate-sepia.vercel.app");
 
             window.close();
           </script>

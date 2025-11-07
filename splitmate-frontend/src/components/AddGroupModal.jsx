@@ -22,6 +22,7 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
 
   // Pre-fill creator when modal opens
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     if (isOpen && user && members.length === 0) {
       setMembers([
         {

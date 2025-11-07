@@ -15,26 +15,30 @@ const RecentActivity = () => {
 
   console.log("🔍 RecentActivity component rendered, socket:", socket ? "connected" : "not connected");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const recent = await getRecentActivity();
-        const deleted = await getDeletedExpenses();
-        setActivities(recent || []);
-        setDeletedExpenses(deleted?.deletedExpenses || []);
-      } catch (error) {
-        console.error("Failed to load recent activity:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+ useEffect(() => {
+  if (typeof window === "undefined") return;   // ✅ important for SSR
+
+  const fetchData = async () => {
+    try {
+      const recent = await getRecentActivity();
+      const deleted = await getDeletedExpenses();
+      setActivities(recent || []);
+      setDeletedExpenses(deleted?.deletedExpenses || []);
+    } catch (error) {
+      console.error("Failed to load recent activity:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
 
   // Socket.IO real-time updates for activity
   useEffect(() => {
-    console.log("🔍 Socket useEffect triggered, socket:", socket ? "exists" : "null");
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     if (!socket) return;
+    console.log("🔍 Socket useEffect triggered, socket:", socket ? "exists" : "null");
 
     const handleActivityUpdate = async () => {
       console.log("🔄 Activity update received, refreshing...");

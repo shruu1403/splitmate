@@ -194,6 +194,7 @@ export default function AllExpenses() {
   };
 
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     fetchExpenses();
   }, [refreshTrigger]); // Re-fetch when settlements occur
 

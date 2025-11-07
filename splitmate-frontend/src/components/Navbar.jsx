@@ -11,6 +11,7 @@ const Navbar = ({ isSidebarOpen = false, onToggleSidebar }) => {
 
   // Close on Escape key
   React.useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     const onKey = (e) => {
       if (e.key === 'Escape') {
         setShowLogoutConfirm(false);
@@ -24,6 +25,7 @@ const Navbar = ({ isSidebarOpen = false, onToggleSidebar }) => {
   // Close user menu on outside click
   const profileRef = React.useRef(null);
   React.useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setShowUserMenu(false);

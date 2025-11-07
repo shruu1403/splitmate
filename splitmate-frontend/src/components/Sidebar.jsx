@@ -50,12 +50,14 @@ const Sidebar = ({ open, setOpen }) => {
     }
   };
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     fetchGroups();
     fetchFriends();
   }, []);
 
   // Close sidebar on route change for small screens
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
     if (isMobile) setOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -63,6 +65,7 @@ const Sidebar = ({ open, setOpen }) => {
 
   // Close on ESC key when open on mobile
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     const onKey = (e) => {
       if (e.key === 'Escape') {
         const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
@@ -75,6 +78,7 @@ const Sidebar = ({ open, setOpen }) => {
 
   // Prevent background scroll when sidebar is open on mobile
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
     if (!isMobile) return; // Only apply off-canvas scroll lock on small screens
 
@@ -122,6 +126,7 @@ const Sidebar = ({ open, setOpen }) => {
 
   // Socket listeners for real-time updates
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     if (!socket) return;
 
     const handleGroupUpdate = () => {

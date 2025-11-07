@@ -28,11 +28,15 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    if (typeof window === "undefined") return;  // prevents SSR crash
     fetchBalance();
-  }, [refreshTrigger]); // Re-fetch when settlements occur
+  }, [refreshTrigger]);
+
 
   // Socket.IO real-time balance updates
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!socket) return;
     if (socket) {
       const handleBalanceUpdate = () => {
         console.log("Balance update received, refreshing dashboard");
@@ -81,7 +85,7 @@ const Dashboard = () => {
     const absStr = Math.abs(amount).toFixed(2);
     return amount < 0 ? `-₹${absStr}` : `₹${absStr}`;
   };
-  
+
 
 
   const getInitials = (name = "") => {
@@ -99,7 +103,7 @@ const Dashboard = () => {
         <h1 className={styles.greetingss}>HELLO Shruti</h1> */}
 
         <h1 className={styles.heading}>Dashboard</h1>
-        <button 
+        <button
           className={styles.addButton}
           onClick={() => setShowAddExpense(true)}
         >

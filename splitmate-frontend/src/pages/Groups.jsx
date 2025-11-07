@@ -36,18 +36,30 @@ export default function Groups() {
   const [settlementData, setSettlementData] = useState(null);
   const [settlements, setSettlements] = useState([]); // extracted settlement records
   const [toastMessage, setToastMessage] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
 
   // decode user from token
-  const currentUser = (() => {
+  useEffect(() => {
+    if (typeof window === "undefined") return; // prevent SSR
+
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return null;
+      const token = window.localStorage.getItem("token");
+      if (!token) return;
+
       const payload = JSON.parse(atob(token.split(".")[1]));
-      return { _id: payload.userID, id: payload.userID, name: payload.name, email: payload.email };
+
+      setCurrentUser({
+        _id: payload.userID,
+        id: payload.userID,
+        name: payload.name,
+        email: payload.email
+      });
     } catch {
-      return null;
+      setCurrentUser(null);
     }
-  })();
+
+  }, []);
+
 
   // small helpers
   const roundToTwo = (v) => Math.round((Number(v) + Number.EPSILON) * 100) / 100;
@@ -198,12 +210,16 @@ export default function Groups() {
   };
 
   useEffect(() => {
-    if (groupId) fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupId, refreshTrigger]); // Add refreshTrigger to watch for global settlement updates
+  if (typeof window === "undefined") return;
+  if (!groupId) return;
+  fetchData();
+}, [groupId, refreshTrigger]);
+  
 
   // real-time updates
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!socket || !groupId) return;
     if (socket && groupId) {
       joinGroupRoom(groupId);
 
@@ -243,7 +259,7 @@ export default function Groups() {
 
   const handleDeleteExpense = async () => {
     if (!deletingExpenseId) return;
-    
+
     // Double-check if expense is settled
     const expense = expenses.find(e => e._id === deletingExpenseId);
     if (expense && isExpenseSettled(expense)) {
@@ -253,7 +269,7 @@ export default function Groups() {
       setDeletingExpenseId(null);
       return;
     }
-    
+
     try {
       await deleteExpense(deletingExpenseId);
       await fetchData();
@@ -287,7 +303,7 @@ export default function Groups() {
       console.error("Failed to generate link:", error);
       setToastMessage("Failed to generate link");
     } finally {
-      setTimeout(() => setToastMessage("") , 1600);
+      setTimeout(() => setToastMessage(""), 1600);
     }
   };
 
@@ -306,10 +322,10 @@ export default function Groups() {
   // Calculate who I owe money to in this group (returns only the positive balances - people you must pay)
   const getGroupBalancesToSettle = () => {
     if (!currentUser || !selectedGroup) return [];
-    
+
     // Combine expenses and settlements for balance calculation
     const allTransactions = [...expenses, ...settlements];
-    
+
     if (allTransactions.length === 0) return [];
 
     const balanceMap = {};
@@ -324,7 +340,7 @@ export default function Groups() {
     // compute from all transactions (expenses + settlements)
     allTransactions.forEach((transaction) => {
       if (transaction.isDeleted) return;
-      
+
       const isSettlement = isSettlementExpense(transaction);
       const payers = getPayers(transaction);
       const totalPaid = payers.reduce((s, p) => s + Number(p.amount || 0), 0) || Number(transaction.amount || 0);
@@ -333,12 +349,12 @@ export default function Groups() {
         // Settlement: paidBy (from) pays splitAmong[0].user (to)
         // If I paid someone in a settlement, it REDUCES what I owe them
         // If someone paid me in a settlement, it REDUCES what they owe me (so I owe them less)
-        
-        const toUserId = typeof transaction.splitAmong?.[0]?.user === "object" 
-          ? transaction.splitAmong[0].user._id 
+
+        const toUserId = typeof transaction.splitAmong?.[0]?.user === "object"
+          ? transaction.splitAmong[0].user._id
           : transaction.splitAmong?.[0]?.user;
         const settlementAmount = Number(transaction.amount || 0);
-        
+
         const paidById = typeof transaction.paidBy === "object" ? transaction.paidBy._id : transaction.paidBy;
         if (String(paidById) === String(currentUser._id)) {
           // I paid someone in settlement => reduces what I owe them
@@ -423,7 +439,7 @@ export default function Groups() {
   };
 
   const handleSettleUp = (balance) => {
-    
+
     setSettlementData({
       fromUser: {
         _id: currentUser._id,
@@ -465,7 +481,7 @@ export default function Groups() {
     try {
       // Get all individual balances that need settling
       const { youOwe, youAreOwed } = calculateOverallBalance();
-      
+
       if (youOwe === 0 && youAreOwed === 0) {
         toast.info("No balances to settle!");
         // alert("No balances to settle!");
@@ -487,9 +503,9 @@ export default function Groups() {
         if (exp.isDeleted) return;
         const payers = getPayers(exp);
         const paidByUserMap = {};
-        payers.forEach(p => { 
-          const id = String(p.user); 
-          paidByUserMap[id] = (paidByUserMap[id] || 0) + Number(p.amount || 0); 
+        payers.forEach(p => {
+          const id = String(p.user);
+          paidByUserMap[id] = (paidByUserMap[id] || 0) + Number(p.amount || 0);
         });
         (exp.splitAmong || []).forEach(s => {
           const uid = typeof s.user === 'object' ? s.user._id : s.user;
@@ -514,10 +530,10 @@ export default function Groups() {
 
       // Create settlement records for each person I need to settle with
       const settlementPromises = [];
-      
+
       // In offsetting scenario (myNet = 0), we still need to settle individual balances
       // So we look at gross amounts directly from youOwe and youAreOwed
-      
+
       for (const [userId, net] of Object.entries(netMap)) {
         if (userId === myId) continue;
         if (net === 0) continue;
@@ -560,14 +576,14 @@ export default function Groups() {
         return;
       }
 
-  // Record all settlements
-  await Promise.all(settlementPromises);
-      
-  toast.success(`Settled up! ${settlementPromises.length} transaction(s) recorded.`);
-      
+      // Record all settlements
+      await Promise.all(settlementPromises);
+
+      toast.success(`Settled up! ${settlementPromises.length} transaction(s) recorded.`);
+
       // Refresh data
       await fetchData();
-      
+
     } catch (error) {
       console.error("Failed to record offset settlement:", error);
       toast.error("Failed to record settlement");
@@ -579,7 +595,7 @@ export default function Groups() {
   const handleConfirmSettlement = async () => {
     try {
       if (!settlementData) throw new Error("No settlement data to record");
-      
+
       // Use SettlementContext's handleSettlement function
       await handleSettlement({
         groupId: settlementData.groupId,
@@ -588,16 +604,16 @@ export default function Groups() {
         amount: settlementData.amount,
         method: settlementData.method || "cash",
       });
-      
+
       // UI state updates
       setShowSettleUp(false);
       setSettlementData(null);
-  toast.success("Settlement has been recorded.");
-  // Immediately refresh to reflect the new settlement in UI
-  await fetchData();
+      toast.success("Settlement has been recorded.");
+      // Immediately refresh to reflect the new settlement in UI
+      await fetchData();
     } catch (error) {
       console.error("Settlement failed:", error);
-      
+
       // Show more detailed error message
       let errorMsg = "Settlement failed: ";
       if (error.message) {
@@ -739,47 +755,47 @@ export default function Groups() {
     // Process ALL expenses; settlements below will offset amounts
     expenses.forEach(exp => {
       if (exp.isDeleted) return;
-      
+
       // Check if I'm involved in this expense
       const myShareEntry = exp.splitAmong?.find((s) => {
         const userId = typeof s.user === 'object' ? s.user._id : s.user;
         return String(userId) === myId;
       });
-      
+
       if (!myShareEntry) return; // I'm not involved
-      
+
       const myShare = Number(myShareEntry.share || myShareEntry.amount || 0);
-      
+
       // Get who paid and how much
       const payers = getPayers(exp);
       const paidByUserMap = {};
-      payers.forEach(p => { 
-        const id = String(p.user); 
-        paidByUserMap[id] = (paidByUserMap[id] || 0) + Number(p.amount || 0); 
+      payers.forEach(p => {
+        const id = String(p.user);
+        paidByUserMap[id] = (paidByUserMap[id] || 0) + Number(p.amount || 0);
       });
-      
+
       const myPaid = Number(paidByUserMap[myId] || 0);
       const myNet = roundToTwo(myPaid - myShare); // positive if I overpaid, negative if I underpaid
-      
+
       // For each OTHER person in this expense, calculate bilateral balance
       exp.splitAmong?.forEach((splitEntry) => {
         const userId = typeof splitEntry.user === 'object' ? splitEntry.user._id : splitEntry.user;
         const userIdStr = String(userId);
-        
+
         if (userIdStr === myId) return; // Skip myself
-        
+
         const theirShare = Number(splitEntry.share || splitEntry.amount || 0);
         const theirPaid = Number(paidByUserMap[userIdStr] || 0);
         const theirNet = roundToTwo(theirPaid - theirShare);
-        
-  if (!bilateralBalances[userIdStr]) bilateralBalances[userIdStr] = 0;
-        
+
+        if (!bilateralBalances[userIdStr]) bilateralBalances[userIdStr] = 0;
+
         // Bilateral logic:
         // If I paid more than my share AND they paid less than their share:
         //   They owe me a portion of what I overpaid (proportional to their deficit)
         // If they paid more than their share AND I paid less than my share:
         //   I owe them a portion of what they overpaid (proportional to my deficit)
-        
+
         if (myNet > 0 && theirNet < 0) {
           // I overpaid, they underpaid
           // They owe me: min(my overpayment, their deficit)
@@ -816,16 +832,16 @@ export default function Groups() {
     // Build results array
     const members = selectedGroup.members || [];
     const results = [];
-    
+
     members.forEach(member => {
       const userId = String(member._id);
       if (userId === myId) return; // Skip myself
-      
+
       const bilateral = roundToTwo(bilateralBalances[userId] || 0);
       if (Math.abs(bilateral) < 0.01) return; // Skip if balanced
-      
-      results.push({ 
-        user: member, 
+
+      results.push({
+        user: member,
         net: bilateral // positive = they owe me, negative = I owe them
       });
     });
@@ -950,7 +966,7 @@ export default function Groups() {
                         ₹{youAreOwed.toFixed(2)}
                       </span>
                     </div>
-                    
+
                   </div>
                 </div>
               );
@@ -962,7 +978,7 @@ export default function Groups() {
               {(() => {
                 const nets = getGroupNetByPerson();
                 const { youOwe, youAreOwed, netBalance } = calculateOverallBalance();
-                
+
                 // Only show "squared up" if ALL amounts are 0 (actual settlement happened)
                 if (nets.length === 0 && youOwe === 0 && youAreOwed === 0) {
                   return (
@@ -972,7 +988,7 @@ export default function Groups() {
                     </div>
                   );
                 }
-                
+
                 // Show offsetting balances message if net=0 but gross amounts exist
                 if (nets.length === 0 && netBalance === 0 && (youOwe > 0 || youAreOwed > 0)) {
                   return (
@@ -1003,7 +1019,7 @@ export default function Groups() {
                     </div>
                   );
                 }
-                
+
                 return (
                   <div className={styles.balanceList}>
                     {nets.map((entry) => {
@@ -1047,7 +1063,7 @@ export default function Groups() {
                 if (expenses.length === 0) {
                   return <div className={styles.emptyExpenses}><p>No expenses yet. Add one!</p></div>;
                 }
-                
+
                 const renderExpense = (exp) => {
                   const balance = calculateBalance(exp);
                   const payers = getPayers(exp);
@@ -1077,7 +1093,7 @@ export default function Groups() {
                                       if (uiLabel.imgFallback && e.currentTarget.src !== window.location.origin + uiLabel.imgFallback) {
                                         e.currentTarget.src = uiLabel.imgFallback;
                                       } else {
-                                        e.currentTarget.outerHTML = '<span class="'+styles.labelEmoji+'">📦</span>';
+                                        e.currentTarget.outerHTML = '<span class="' + styles.labelEmoji + '">📦</span>';
                                       }
                                     }}
                                   />
@@ -1115,12 +1131,12 @@ export default function Groups() {
                             const iAmPayer = payersList.some(p => String(p.user) === String(currentUser?._id));
                             const canDelete = (iAmPayer || String(paidById) === String(currentUser?._id) || String(createdById) === String(currentUser?._id)) && !settled;
                             return canDelete && (
-                              <button 
-                                onClick={(event) => { 
-                                  event.stopPropagation(); 
-                                  confirmDeleteExpense(exp._id); 
-                                }} 
-                                className={`${styles.deleteBtn}`} 
+                              <button
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  confirmDeleteExpense(exp._id);
+                                }}
+                                className={`${styles.deleteBtn}`}
                                 title={settled ? "Cannot delete settled expense" : "Delete expense"}
                               >
                                 <Trash2 size={16} />
@@ -1154,7 +1170,7 @@ export default function Groups() {
                     </div>
                   );
                 };
-                
+
                 return (
                   <div className={styles.expenseList}>
                     {/* Show ALL expenses with settled badges */}

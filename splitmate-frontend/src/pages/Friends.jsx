@@ -210,11 +210,14 @@ export default function Friends() {
   };
 
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     fetchFriend();
-  }, [id, refreshTrigger]); // Add refreshTrigger to watch for settlements
+  }, [id, refreshTrigger]);
 
   // Socket.IO real-time updates for direct expenses
   useEffect(() => {
+    if (typeof window === "undefined") return; // ✅ SSR safe
+    if (!socket || !user) return;
     if (socket && user) {
       // Listen for expense updates that affect this user
       const handleExpenseUpdate = (data) => {
@@ -331,9 +334,9 @@ export default function Friends() {
         method: settlementData.method || "cash",
       });
 
-  setShowSettleUp(false);
-  setSettlementData(null);
-  toast.success("Settlement has been recorded.");
+      setShowSettleUp(false);
+      setSettlementData(null);
+      toast.success("Settlement has been recorded.");
     } catch (error) {
       console.error("Settlement failed:", error);
       // alert(error.message || "Settlement failed");

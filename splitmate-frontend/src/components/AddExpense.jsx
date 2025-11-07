@@ -138,6 +138,7 @@ export default function AddExpenseModal({
 
   // Fetch friends when needed
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     if (!isOpen || !friendId) return;
     (async () => {
       try {
@@ -151,6 +152,7 @@ export default function AddExpenseModal({
 
   // Initialize when modal opens - fix the group selection logic
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     if (!isOpen) return;
 
     if (friendId) {
@@ -178,6 +180,8 @@ export default function AddExpenseModal({
 
   // Control body scroll when modal is open
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
+
     if (isOpen) {
       // Disable body scroll
       document.body.style.overflow = 'hidden';
@@ -194,6 +198,7 @@ export default function AddExpenseModal({
 
   // Close side modals on outside click
   useEffect(() => {
+    if (typeof window === "undefined") return;  // ✅ SSR safe
     const handleClickOutside = (e) => {
       // Main add expense modal backdrop close handled below
       if (showPayerModal && payerRef.current && !payerRef.current.contains(e.target)) {

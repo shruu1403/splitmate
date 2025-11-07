@@ -21,17 +21,25 @@ const app = express();
 const server = http.createServer(app)
 
 //setup socket.io
-const {Server} = require("socket.io");
-const io = new Server(server,{
-    cors: {
-        origin: ["http://localhost:5173"],
-        credentials:true,
-    },
+const { Server } = require("socket.io");
+const io = new Server(server, {
+  cors: {
+    origin: [
+      "http://localhost:5173",
+      "https://splitmate-sepia.vercel.app",
+      "https://mysplitmate.netlify.app"
+    ],
+    credentials: true,
+  },
 })
 //middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [
+      "http://localhost:5173",
+      "https://splitmate-sepia.vercel.app",  
+      "https://mysplitmate.netlify.app"
+    ],
     credentials: true,
   })
 );
@@ -48,23 +56,23 @@ app.use("/api/notification", notificationRouter);
 app.use("/api/balance", balanceRouter);
 app.use("/api/activity", activityRouter);
 app.use("/api/invite", inviteRouter);
-app.use("/api/friend",friendRouter)
+app.use("/api/friend", friendRouter)
 
 app.get("/", (req, res) => {
   res.send("SplitMate API running");
 });
 
 //socket.io connection
-io.on("connection",(socket)=>{
-    console.log("user connected:", socket.id);
+io.on("connection", (socket) => {
+  console.log("user connected:", socket.id);
 
-    socket.on("join_group", (groupId)=>{
-        socket.join(groupId)
-        console.log(`user ${socket.id} joined group ${groupId}`);
-    })
-    socket.on("disconnect",()=>{
-        console.log("user disconnected:", socket.id);
-    })
+  socket.on("join_group", (groupId) => {
+    socket.join(groupId)
+    console.log(`user ${socket.id} joined group ${groupId}`);
+  })
+  socket.on("disconnect", () => {
+    console.log("user disconnected:", socket.id);
+  })
 
 })
 
@@ -76,4 +84,4 @@ server.listen(PORT, async () => {
     console.log(error);
   }
 });
-module.exports={ io }
+module.exports = { io }

@@ -5,63 +5,10 @@ const { userModel } = require("../models/userModel");
 const { groupModel } = require("../models/groupModel");
 const { notificationModel } = require("../models/notificationModel");
 const { activityModel } = require("../models/activityModel");
-const {calculateBalance} = require("../utils/calculateBalance")
 const crypto = require("crypto");
-const { initRazorpay } = require("../config/razorpay");
 
 const settlementRouter = express.Router();
 
-// Razorpay: create order (demo)
-settlementRouter.post("/create-order", auth, async (req, res) => {
-  try {
-    const { amount } = req.body; // amount in INR
-    if (!amount || amount <= 0) return res.status(400).send({ msg: "Amount is required" });
-
-    const razorpay = initRazorpay();
-    if (!razorpay) return res.status(500).send({ msg: "Razorpay not configured" });
-
-    const options = {
-      amount: Math.round(amount * 100), // convert to paise
-      currency: "INR",
-      receipt: `rcpt_${Date.now()}`,
-      notes: { purpose: "splitmate_settlement_demo" },
-    };
-
-    const order = await razorpay.orders.create(options);
-    res.status(201).send({
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      keyId: process.env.RAZORPAY_KEY_ID,
-    });
-  } catch (error) {
-    console.error("Error creating Razorpay order:", error);
-    res.status(500).send({ msg: "Failed to create order" });
-  }
-});
-
-// Razorpay: verify payment signature (demo)
-settlementRouter.post("/verify", auth, async (req, res) => {
-  try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      return res.status(400).send({ msg: "Missing Razorpay parameters" });
-    }
-
-    const key_secret = process.env.RAZORPAY_KEY_SECRET;
-    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
-    const expectedSignature = crypto
-      .createHmac("sha256", key_secret)    //hmac is hash based message authentication code 
-      .update(body.toString())
-      .digest("hex");
-
-    const isValid = expectedSignature === razorpay_signature;
-    res.status(200).send({ verified: isValid });
-  } catch (error) {
-    console.error("Error verifying Razorpay signature:", error);
-    res.status(500).send({ msg: "Failed to verify signature" });
-  }
-});
 
 // Record a new settlement
 settlementRouter.post("/add", auth, async (req, res) => {

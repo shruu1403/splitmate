@@ -17,40 +17,38 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
- 
+
   useEffect(() => {
-  if (typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
 
-  const token = window.localStorage.getItem("token");
-  if (token) {
-    navigate("/dashboard", { replace: true });
-  }
-}, [navigate]);
-
+    const token = window.localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
 
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    const allowedOrigins = [
+      "http://localhost:8080",            
+      "https://splitmate-32de.onrender.com"  
+    ];
+
     const handleMessage = (event) => {
-      // only accept from your backend
-      // if (event.origin !== "http://localhost:8080") return;
-      if (event.origin !== "https://splitmate-32de.onrender.com") return;
+      if (!allowedOrigins.includes(event.origin)) return;
 
       if (event.data.token) {
-        // save token and login
-        // localStorage.setItem("token", event.data.token);
-        login(event.data.token); // from AuthContext
-        navigate("/dashboard", { replace: true }); // redirect to dashboard
+        login(event.data.token);
+        navigate("/dashboard", { replace: true });
       }
     };
 
     window.addEventListener("message", handleMessage);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
+    return () => window.removeEventListener("message", handleMessage);
   }, [login, navigate]);
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

@@ -9,6 +9,7 @@ import { useGroups } from "../context/GroupContext";
 export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
   const formRef = useRef(null);
   const modalRef = useRef(null);
+  const debounceTimerRef = useRef(null); // ✅ Add debounce timer ref
   const [name, setName] = useState("");
   const [members, setMembers] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -16,6 +17,7 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
   const [sendInvitesOnSave, setSendInvitesOnSave] = useState(true);
   const [alsoAddToFriends, setAlsoAddToFriends] = useState(false);
   const [toast, setToast] = useState("");
+  const [isCreating, setIsCreating] = useState(false); // ✅ Add loading state
 
   const { user } = useContext(AuthContext);
   const { reloadGroups } = useGroups();
@@ -47,7 +49,19 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
       return updated;
     });
 
-    if (value.length > 0) {
+    // Clear previous timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // If empty, clear suggestions immediately
+    if (value.length === 0) {
+      setSuggestions([]);
+      return;
+    }
+
+    // Debounce API call by 300ms
+    debounceTimerRef.current = setTimeout(async () => {
       try {
         const results = await getAllFriends(value);
         // Filter out already selected friends
@@ -55,10 +69,9 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
         setSuggestions(results.filter((r) => !selectedIds.includes(r._id)));
       } catch (err) {
         console.error(err);
+        setSuggestions([]);
       }
-    } else {
-      setSuggestions([]);
-    }
+    }, 300); // Wait 300ms after user stops typing
   };
 
   const handleSelectFriend = (index, friend) => {
@@ -68,7 +81,7 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
     setSuggestions([]);
     setActiveIndex(null);
   };
-
+  
   const addMemberField = () =>
     setMembers([...members, { name: "", email: "" }]);
 
@@ -80,25 +93,26 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-  // Validate group has at least 2 members (creator + 1 other)
-    // Accept either an existing friend (has _id) OR a typed email as an intended member
+    if (isCreating) return;
+    
+    // Validate group has at least 2 members (creator + 1 other)
     const hasExistingFriend = members.some(m => !m.locked && m._id);
     const hasTypedEmail = members.some(m => !m.locked && !m._id && m.email && m.email.includes("@"));
     if (!hasExistingFriend && !hasTypedEmail) {
       setToast("Add at least one more member");
-      setTimeout(() => setToast("") , 1600);
+      setTimeout(() => setToast(""), 1600);
       return;
     }
     
+    setIsCreating(true);
     try {
       // exclude creator before sending
       const filteredMembers = members
-        .filter((m) => !m.locked) // skip the pre-filled creator row
+        .filter((m) => !m.locked)
         .map((m) => m._id);
       const response = await createGroups({
         name,
-        // Send only valid friend IDs; emails are for invite flow post-save
-        members: filteredMembers.filter(Boolean), // backend auto-includes creator
+        members: filteredMembers.filter(Boolean),
       });
       
       const newGroup = response.group || response;
@@ -113,8 +127,7 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
         )
       );
 
-      // Optionally send invites for the newly created group (single email),
-      // and if alsoAddToFriends is checked, backend will auto-add friendship on accept
+      // Send invites if enabled
       if (sendInvitesOnSave && newGroup && inviteEmails.length > 0) {
         let success = 0;
         let failed = 0;
@@ -132,11 +145,10 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
           if (success > 0) parts.push(`${success} sent`);
           if (failed > 0) parts.push(`${failed} failed`);
           setToast(`Invites: ${parts.join(", ")}.`);
-          setTimeout(() => setToast("") , 1600);
+          setTimeout(() => setToast(""), 1600);
         }
       }
 
-      // Call the callback with the new group data if provided
       if (onGroupAdded && newGroup) {
         onGroupAdded(newGroup);
       }
@@ -161,7 +173,9 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
     } catch (err) {
       console.error("Error creating group:", err);
       setToast("Could not create group. Try again.");
-      setTimeout(() => setToast("") , 1600);
+      setTimeout(() => setToast(""), 1600);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -193,6 +207,7 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
           aria-label="Close modal"
           className={styles.closeModalBtn}
           onClick={onClose}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClose && onClose(); } }}
         >
           ×
         </button>
@@ -241,7 +256,13 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
                 {activeIndex === i && suggestions.length > 0 && (
                   <div className={styles.suggestions}>
                     {suggestions.map((s) => (
-                      <div key={s._id} onClick={() => handleSelectFriend(i, s)}>
+                      <div
+                        key={s._id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleSelectFriend(i, s)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectFriend(i, s); } }}
+                      >
                         {s.name} ({s.email})
                       </div>
                     ))}
@@ -259,7 +280,12 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
             </div>
           ))}
 
-          <button type="button" onClick={addMemberField} className={styles.addMemberBtn}>
+          <button
+            type="button"
+            onClick={addMemberField}
+            className={styles.addMemberBtn}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); addMemberField(); } }}
+          >
             + Add Member
           </button>
            <p className={styles.hint}>Tip: Type an email if the person isn’t on your friends list.</p>
@@ -288,8 +314,20 @@ export default function AddGroupModal({ isOpen, onClose, onGroupAdded }) {
           </div>
 
           <div className={styles.actions}>
-            <button type="submit" className={styles.btnPrimary}> Save</button>
-            <button type="button" onClick={onClose} className={styles.btnOutline}>
+            <button 
+              type="submit" 
+              className={styles.btnPrimary}
+              disabled={isCreating}
+              style={{ opacity: isCreating ? 0.6 : 1, cursor: isCreating ? 'not-allowed' : 'pointer' }}
+            >
+              {isCreating ? "Creating..." : "Save"}
+            </button>
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className={styles.btnOutline}
+              disabled={isCreating}
+            >
               Cancel
             </button>
           </div>

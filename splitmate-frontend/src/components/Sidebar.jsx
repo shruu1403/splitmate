@@ -23,6 +23,8 @@ const Sidebar = ({ open, setOpen }) => {
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, group: null });
   const [deleteFriendConfirm, setDeleteFriendConfirm] = useState({ show: false, friend: null });
+  const [isDeleting, setIsDeleting] = useState(false); // ✅ Add loading state
+  const [isSendingInvite, setIsSendingInvite] = useState(false); // ✅ Add loading state
   const sidebarRef = useRef(null);
 
 
@@ -153,11 +155,14 @@ const Sidebar = ({ open, setOpen }) => {
 
   // Invite Handlers
   const handleSendInvite = async () => {
+    if (isSendingInvite) return;
+    
     try {
       if (!email) {
         toast.error("Please enter an email");
         return;
       }
+      setIsSendingInvite(true);
       await sendInvite({ email, groupId: null });
       toast.success("Invite sent!");
       setEmail("");
@@ -165,6 +170,8 @@ const Sidebar = ({ open, setOpen }) => {
     } catch (err) {
       console.error(err);
       toast.error("Failed to send invite");
+    } finally {
+      setIsSendingInvite(false);
     }
   };
 
@@ -181,6 +188,9 @@ const Sidebar = ({ open, setOpen }) => {
   };
 
   const handleDeleteGroup = async (groupId) => {
+    if (isDeleting) return;
+    
+    setIsDeleting(true);
     try {
       await deleteGroup(groupId);
       fetchGroups();
@@ -192,6 +202,8 @@ const Sidebar = ({ open, setOpen }) => {
     } catch (err) {
       console.error("Error deleting group:", err);
       toast.error(err.message || "Failed to delete group");
+    } finally {
+      setIsDeleting(false);
     }
   };
   return (
@@ -336,9 +348,27 @@ const Sidebar = ({ open, setOpen }) => {
             className={styles.input}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSendInvite();
+              }
+            }}
+            disabled={isSendingInvite}
           />
-          <button className={styles.btn} onClick={handleSendInvite}>
-            Send Invite
+          <button 
+            className={styles.btn} 
+            onClick={handleSendInvite}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleSendInvite();
+              }
+            }}
+            disabled={isSendingInvite}
+            style={{ opacity: isSendingInvite ? 0.6 : 1, cursor: isSendingInvite ? 'not-allowed' : 'pointer' }}
+          >
+            {isSendingInvite ? "Sending..." : "Send Invite"}
           </button>
 
 
@@ -362,7 +392,6 @@ const Sidebar = ({ open, setOpen }) => {
       {deleteConfirm.show && (
         <div className={styles.deleteModal}>
           <div className={styles.deleteDialog}>
-            {/* <h3>Delete Group</h3> */}
             <p>
               Are you sure you want to DELETE <strong>"{deleteConfirm.group?.name}"</strong>?
             </p>
@@ -373,14 +402,17 @@ const Sidebar = ({ open, setOpen }) => {
               <button
                 className={styles.cancelBtn}
                 onClick={() => setDeleteConfirm({ show: false, group: null })}
+                disabled={isDeleting}
               >
                 Cancel
               </button>
               <button
                 className={styles.confirmDeleteBtn}
                 onClick={() => handleDeleteGroup(deleteConfirm.group._id)}
+                disabled={isDeleting}
+                style={{ opacity: isDeleting ? 0.6 : 1, cursor: isDeleting ? 'not-allowed' : 'pointer' }}
               >
-                Delete Group
+                {isDeleting ? "Deleting..." : "Delete Group"}
               </button>
             </div>
           </div>
@@ -398,27 +430,35 @@ const Sidebar = ({ open, setOpen }) => {
               <button
                 className={styles.cancelBtn}
                 onClick={() => setDeleteFriendConfirm({ show: false, friend: null })}
+                disabled={isDeleting}
               >
                 Cancel
               </button>
               <button
                 className={styles.confirmDeleteBtn}
                 onClick={async () => {
+                  if (isDeleting) return;
+                  
+                  setIsDeleting(true);
                   try {
                     await deleteFriend(deleteFriendConfirm.friend._id);
                     setDeleteFriendConfirm({ show: false, friend: null });
                     fetchFriends();
-                    // If currently on that friend's page, redirect to dashboard
+                    toast.success("Friend removed successfully");
                     if (window.location.pathname.includes(`/friends/${deleteFriendConfirm.friend._id}`)) {
                       navigate('/dashboard');
                     }
                   } catch (err) {
                     console.error('Error deleting friend:', err);
                     toast.error(err.message || 'Failed to delete friend');
+                  } finally {
+                    setIsDeleting(false);
                   }
                 }}
+                disabled={isDeleting}
+                style={{ opacity: isDeleting ? 0.6 : 1, cursor: isDeleting ? 'not-allowed' : 'pointer' }}
               >
-                Remove Friend
+                {isDeleting ? "Removing..." : "Remove Friend"}
               </button>
             </div>
           </div>

@@ -21,7 +21,7 @@ authRouter.get(
           <script>
             // Send token to opener window
             window.opener.postMessage({ token: "${token}" },
-            "https://splitmate-sepia.vercel.app");
+            "https://splitmate.me");
 
             window.close();
           </script>

@@ -30,6 +30,7 @@ export default function Groups() {
   const [deletingExpenseId, setDeletingExpenseId] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteGroupConfirm, setShowDeleteGroupConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false); // ✅ Add loading state
   const [selectedExpenseDetail, setSelectedExpenseDetail] = useState(null);
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
   const [showSettleUp, setShowSettleUp] = useState(false);
@@ -258,28 +259,29 @@ export default function Groups() {
   };
 
   const handleDeleteExpense = async () => {
-    if (!deletingExpenseId) return;
+    if (!deletingExpenseId || isDeleting) return;
 
     // Double-check if expense is settled
     const expense = expenses.find(e => e._id === deletingExpenseId);
     if (expense && isExpenseSettled(expense)) {
       toast.info("Cannot delete a settled expense. This expense has already been settled up.");
-      // alert("Cannot delete a settled expense. This expense has already been settled up.");
       setShowDeleteConfirm(false);
       setDeletingExpenseId(null);
       return;
     }
 
+    setIsDeleting(true);
     try {
       await deleteExpense(deletingExpenseId);
       await fetchData();
       setShowDeleteConfirm(false);
+      toast.success("Expense deleted successfully");
     } catch (err) {
       console.error("Delete failed:", err);
       toast.error("Failed to delete expense");
-      // alert("Failed to delete expense");
     } finally {
       setDeletingExpenseId(null);
+      setIsDeleting(false);
     }
   };
 
@@ -308,14 +310,19 @@ export default function Groups() {
   };
 
   const handleDeleteGroup = async () => {
+    if (isDeleting) return;
+    
+    setIsDeleting(true);
     try {
       await deleteGroup(groupId);
       setShowDeleteGroupConfirm(false);
+      toast.success("Group deleted successfully");
       navigate("/dashboard");
     } catch (err) {
       console.error("Error deleting group:", err);
       toast.error("Failed to delete group");
-      // alert(err.message || "Failed to delete group");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -1061,7 +1068,7 @@ export default function Groups() {
               {/* Show ALL expenses with settled badges */}
               {(() => {
                 if (expenses.length === 0) {
-                  return <div className={styles.emptyExpenses}><p>No expenses yet. Add one!</p></div>;
+                  return <div className={styles.emptyExpenses}><p>No expenses yet. Add one to get started!</p></div>;
                 }
 
                 const renderExpense = (exp) => {
@@ -1202,8 +1209,21 @@ export default function Groups() {
           >
             <p>Are you sure you want to delete this expense?</p>
             <div className={styles.confirmActions}>
-              <button onClick={handleDeleteExpense} className={styles.btnDanger}>Yes, Delete</button>
-              <button onClick={() => { setShowDeleteConfirm(false); setDeletingExpenseId(null); }} className={styles.btnSecondary}>Cancel</button>
+              <button 
+                onClick={handleDeleteExpense} 
+                className={styles.btnDanger}
+                disabled={isDeleting}
+                style={{ opacity: isDeleting ? 0.6 : 1, cursor: isDeleting ? 'not-allowed' : 'pointer' }}
+              >
+                {isDeleting ? "Deleting..." : "Yes, Delete"}
+              </button>
+              <button 
+                onClick={() => { setShowDeleteConfirm(false); setDeletingExpenseId(null); }} 
+                className={styles.btnSecondary}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -1229,14 +1249,17 @@ export default function Groups() {
               <button
                 className={sidebarStyles.cancelBtn}
                 onClick={() => setShowDeleteGroupConfirm(false)}
+                disabled={isDeleting}
               >
                 Cancel
               </button>
               <button
                 className={sidebarStyles.confirmDeleteBtn}
                 onClick={handleDeleteGroup}
+                disabled={isDeleting}
+                style={{ opacity: isDeleting ? 0.6 : 1, cursor: isDeleting ? 'not-allowed' : 'pointer' }}
               >
-                Delete Group
+                {isDeleting ? "Deleting..." : "Delete Group"}
               </button>
             </div>
           </div>

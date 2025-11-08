@@ -21,7 +21,7 @@ authRouter.get(
           <script>
             // Send token to opener window
             window.opener.postMessage({ token: "${token}" },
-            "https://splitmate.me");
+            "https://www.splitmate.me");
 
             window.close();
           </script>

@@ -25,7 +25,8 @@ const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
     origin: [
-      "https://www.splitmate.me"
+      process.env.CLIENT_URL,
+      process.env.LOCAL_CLIENT_URL
     ],
     credentials: true,
   },
@@ -34,7 +35,9 @@ const io = new Server(server, {
 app.use(
   cors({
     origin: [
-      "https://www.splitmate.me"
+      process.env.CLIENT_URL,
+      process.env.LOCAL_CLIENT_URL
+
     ],
     credentials: true,
   })

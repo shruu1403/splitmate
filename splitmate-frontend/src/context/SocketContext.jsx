@@ -31,7 +31,7 @@ export const SocketProvider = ({ children }) => {
     if (typeof window === "undefined") return;
 
     // Create socket connection
-    const newSocket = io('https://splitmate-32de.onrender.com', {
+    const newSocket = io(process.env.SERVER_URL || '', {
       auth: { token: localStorage.getItem('token') }
     });
 

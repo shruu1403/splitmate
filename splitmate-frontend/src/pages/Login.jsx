@@ -33,7 +33,7 @@ const Login = () => {
 
     const allowedOrigins = [
       "http://localhost:8080",            
-      "https://splitmate-32de.onrender.com"  
+      "https://api.splitmate.me"  
     ];
 
     const handleMessage = (event) => {
@@ -56,7 +56,7 @@ const Login = () => {
   const handleGoogleLogin = () => {
     window.open(
       // "http://localhost:8080/api/auth/google",
-      "https://splitmate-32de.onrender.com/api/auth/google",
+      "https://api.splitmate.me/api/auth/google",
       "_blank",
       "width=500,height=600"
     );

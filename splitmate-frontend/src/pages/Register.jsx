@@ -37,7 +37,7 @@ const Register = () => {
     const handleMessage = (event) => {
       const allowedOrigins = [
         "http://localhost:8080",
-        "https://splitmate-32de.onrender.com",
+        "https://api.splitmate.me",
       ];
 
       if (!allowedOrigins.includes(event.origin)) return;
@@ -87,7 +87,7 @@ const Register = () => {
   const handleGoogleSignup = () => {
     window.open(
       // "http://localhost:8080/api/auth/google",
-      "https://splitmate-32de.onrender.com/api/auth/google",
+      "https://api.splitmate.me/api/auth/google",
       "_blank",
       "width=500,height=600"
     );

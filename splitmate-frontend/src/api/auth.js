@@ -1,5 +1,5 @@
-// const TESTING_URL = "http://localhost:8080/api";
-const TESTING_URL = "https://splitmate-32de.onrender.com/api";
+import { TESTING_URL } from "../Apilinks";
+
 
 export const registerUser = async (userData) => {
   const res = await fetch(`${TESTING_URL}/users/register`, {

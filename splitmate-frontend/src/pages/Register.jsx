@@ -83,8 +83,14 @@ const Register = () => {
   };
 
   const handleGoogleSignup = () => {
+    if (!BACKEND_URL) {
+      setError("Google signup is not configured. Please try again later.");
+      return;
+    }
+
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
     window.open(
-      `${BACKEND_URL}/api/auth/google`,
+      `${BACKEND_URL}/api/auth/google?origin=${encodeURIComponent(origin)}`,
       "_blank",
       "width=500,height=600"
     );

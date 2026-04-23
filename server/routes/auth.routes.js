@@ -1,13 +1,23 @@
 const express = require("express");
 const passport = require("passport");
-const { getFrontendUrl } = require("../config/urls");
+const { getFrontendUrl, isAllowedClientUrl } = require("../config/urls");
 
 const authRouter = express.Router();
 
 //initiate google login
 authRouter.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  (req, res, next) => {
+    const requestedOrigin = req.query.origin;
+    const state = isAllowedClientUrl(requestedOrigin)
+      ? encodeURIComponent(requestedOrigin)
+      : undefined;
+
+    passport.authenticate("google", {
+      scope: ["profile", "email"],
+      state,
+    })(req, res, next);
+  }
 );
 
 //callbackURL
@@ -16,7 +26,12 @@ authRouter.get(
   passport.authenticate("google", { session: false }),
   (req, res) => {
     const { token } = req.user;
-    const frontendUrl = getFrontendUrl();
+    const stateOrigin = req.query.state
+      ? decodeURIComponent(req.query.state)
+      : "";
+    const frontendUrl = isAllowedClientUrl(stateOrigin)
+      ? stateOrigin
+      : getFrontendUrl();
     const html = `
       <html>
         <body>

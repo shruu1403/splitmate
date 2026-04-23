@@ -52,8 +52,14 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   const handleGoogleLogin = () => {
+    if (!BACKEND_URL) {
+      setError("Google login is not configured. Please try again later.");
+      return;
+    }
+
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
     window.open(
-      `${BACKEND_URL}/api/auth/google`,
+      `${BACKEND_URL}/api/auth/google?origin=${encodeURIComponent(origin)}`,
       "_blank",
       "width=500,height=600"
     );

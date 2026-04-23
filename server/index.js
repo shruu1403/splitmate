@@ -4,6 +4,7 @@ require("dotenv").config();
 const PORT = process.env.PORT;
 const cors = require("cors");
 const passport = require("passport");
+const { getAllowedClientUrls } = require("./config/urls");
 
 const { connection } = require("./config/db");
 const { userRouter } = require("./routes/user.routes");
@@ -19,26 +20,20 @@ const { friendRouter } = require("./routes/friends.routes");
 
 const app = express();
 const server = http.createServer(app)
+const allowedClientUrls = getAllowedClientUrls();
 
 //setup socket.io
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-    origin: [
-      process.env.CLIENT_URL,
-      process.env.LOCAL_CLIENT_URL
-    ],
+    origin: allowedClientUrls,
     credentials: true,
   },
 })
 //middleware
 app.use(
   cors({
-    origin: [
-      process.env.CLIENT_URL,
-      process.env.LOCAL_CLIENT_URL
-
-    ],
+    origin: allowedClientUrls,
     credentials: true,
   })
 );

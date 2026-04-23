@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { registerUser } from "../api/auth";
+import { BACKEND_URL } from "../Apilinks";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/register.module.css";
 import googleLogo from "../assets/images/google logo.png";
@@ -34,12 +35,9 @@ const Register = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const handleMessage = (event) => {
-      const allowedOrigins = [
-        "http://localhost:8080",
-        "https://api.splitmate.me",
-      ];
+    const allowedOrigins = [BACKEND_URL].filter(Boolean);
 
+    const handleMessage = (event) => {
       if (!allowedOrigins.includes(event.origin)) return;
 
       if (event.data.token) {
@@ -86,8 +84,7 @@ const Register = () => {
 
   const handleGoogleSignup = () => {
     window.open(
-      // "http://localhost:8080/api/auth/google",
-      "https://api.splitmate.me/api/auth/google",
+      `${BACKEND_URL}/api/auth/google`,
       "_blank",
       "width=500,height=600"
     );

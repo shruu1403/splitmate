@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { AuthContext } from './AuthContext';
+import { BACKEND_URL } from '../Apilinks';
 
 const SocketContext = createContext();
 
@@ -31,7 +32,7 @@ export const SocketProvider = ({ children }) => {
     if (typeof window === "undefined") return;
 
     // Create socket connection
-    const newSocket = io(process.env.SERVER_URL || '', {
+    const newSocket = io(BACKEND_URL, {
       auth: { token: localStorage.getItem('token') }
     });
 

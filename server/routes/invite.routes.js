@@ -6,8 +6,10 @@ const { userModel } = require("../models/userModel");
 const { groupModel } = require("../models/groupModel");
 const { sendEmail } = require("../utils/sendEmail");
 const { auth } = require("../middleware/auth.middleware");
+const { getFrontendUrl } = require("../config/urls");
 
 const inviteRouter = express.Router();
+const frontendUrl = getFrontendUrl();
 
 /**
  * 📩 Send Invite
@@ -39,7 +41,7 @@ console.log("✅ Generated invite token:", token);  // LOG #1
     });
 
     // Magic link
-    const magicLink = `${process.env.CLIENT_URL}/invite/accept?token=${token}`;
+    const magicLink = `${frontendUrl}/invite/accept?token=${token}`;
 
     // Prepare email
     let subject, html;
@@ -107,7 +109,7 @@ inviteRouter.post("/generate-link", auth, async (req, res) => {
       token,
     });
 
-    const magicLink = `${process.env.CLIENT_URL}/invite/accept?token=${token}`;
+    const magicLink = `${frontendUrl}/invite/accept?token=${token}`;
     
     console.log("✅ Magic link generated successfully:", magicLink);
 

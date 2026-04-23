@@ -1,5 +1,6 @@
 const express = require("express");
 const passport = require("passport");
+const { getFrontendUrl } = require("../config/urls");
 
 const authRouter = express.Router();
 
@@ -15,13 +16,14 @@ authRouter.get(
   passport.authenticate("google", { session: false }),
   (req, res) => {
     const { token } = req.user;
+    const frontendUrl = getFrontendUrl();
     const html = `
       <html>
         <body>
           <script>
             // Send token to opener window
             window.opener.postMessage({ token: "${token}" },
-            "${process.env.CLIENT_URL}");
+            "${frontendUrl}");
 
             window.close();
           </script>
